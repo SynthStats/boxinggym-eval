@@ -1,40 +1,18 @@
-# 🥊 SynthStats Multi-Model Evaluation and Analysis of BoxingGym
+# SynthStats multi-model evaluation of BoxingGym
 
 <p align="center">
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.11+-3670A0?style=flat-square&logo=python&logoColor=ffdd54" alt="Python 3.11+"></a>&nbsp;
-  <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/uv-enabled-blue?style=flat-square" alt="uv"></a>&nbsp;
-  <a href="https://wandb.ai/site"><img src="https://img.shields.io/badge/W%26B-000000?style=flat-square&logo=weightsandbiases&logoColor=white" alt="Weights & Biases"></a>&nbsp;
-  <a href="https://streamlit.io"><img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit"></a>&nbsp;
-  <a href="https://www.pymc.io/"><img src="https://img.shields.io/badge/PyMC-3498DB?style=flat-square" alt="PyMC"></a>&nbsp;
-  <a href="https://github.com/BerriAI/litellm"><img src="https://img.shields.io/badge/LiteLLM-enabled-blueviolet?style=flat-square" alt="LiteLLM"></a>&nbsp;
   <a href="https://arxiv.org/abs/2501.01540"><img src="https://img.shields.io/badge/arXiv-2501.01540-b31b1b.svg?style=flat-square" alt="arXiv"></a>&nbsp;
   <a href="https://huggingface.co/spaces/youkad/boxing-gym-dashboard"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF%20Space-Live%20Demo-yellow?style=flat-square" alt="HF Space"></a>&nbsp;
-  <a href="https://github.com/youqad/boxing-gym-wip/actions/workflows/ci.yml"><img src="https://github.com/youqad/boxing-gym-wip/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/SynthStats/boxinggym-eval/actions/workflows/ci.yml"><img src="https://github.com/SynthStats/boxinggym-eval/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center">
-  <em>Fork of <a href="https://github.com/kanishkg/boxing-gym">Stanford's BoxingGym</a> with multi-model evaluation and analysis dashboards</em>
+  <em>The SynthStats copy of a fork of <a href="https://github.com/kanishkg/boxing-gym">Stanford's BoxingGym</a> that runs its environments on models from several providers and compares the runs</em>
 </p>
 
----
+In the temporal discounting environment of [BoxingGym](https://github.com/kanishkg/boxing-gym), a language model chooses the offers put to a simulated person: some dollars today or a larger sum after a delay, with both amounts and the number of days picked by the model, until its budget of offers runs out and it has to predict the person's choices on new ones. Gandhi et al. wrote ten such environments, described in [README_upstream.md](README_upstream.md), to measure how well language-model agents design experiments and discover models of what they observe.
 
-## What's New
-
-Stanford's BoxingGym is a benchmarking framework designed to evaluate the capabilities of language-based agents in experimental design and model discovery. The original benchmark was primarily designed for evaluation through OpenAI endpoints.
-
-This fork adds multi-model evaluation tooling to Stanford's BoxingGym:
-
-- 7 LLM providers (DeepSeek, MiniMax-M2.1, GLM-4.7, Kimi-K2, GPT-4o, GPT-5.1-Codex-mini, Qwen3-32B)
-- TUI + Streamlit dashboards (rankings, heatmaps, parameter importance, PPL diagnostics)
-- WandB sweep orchestration with parallel agents
-- Cost tracking per model
-- 522 tests
-- `uv` for dependency management
-- Canonical snapshot + generated README/HF summaries from one shared parquet source
-
----
-
-## 🎯 Evaluation Results
+## Results
 
 <!-- CANONICAL_METADATA:START -->
 > Canonical snapshot generated: **2026-02-13T21:14:31Z**
@@ -42,6 +20,8 @@ This fork adds multi-model evaluation tooling to Stanford's BoxingGym:
 > Filters: `budget >= 10`, `exclude_outliers=true`
 > Valid runs: **1,948** across **7 models** and **10 environments**
 <!-- CANONICAL_METADATA:END -->
+
+Each run is scored by the standardized error z of the BoxingGym paper: the run's prediction error, minus the mean error of a reference predictor (the baseline in the tables below), divided by the standard deviation of that predictor's error; for the discounting choices above, the reference predictor gives the same answer to every offer, the delayed or the immediate reward, whichever simulated people take more often. In the third table, `use_ppl = true` marks runs in which the model also wrote [PyMC](https://www.pymc.io/) models of its data and revised them (Box's Loop, see README_upstream.md).
 
 <!-- CANONICAL_RESULTS:START -->
 ### Overall Model Rankings
@@ -107,13 +87,13 @@ _Definition: mean over each `(model, use_ppl)` combination within environment._
 _Snapshot version: `2026-02-13`_
 <!-- CANONICAL_RESULTS:END -->
 
----
+## Running an experiment
 
-## Quick Start
+The code needs [Python](https://www.python.org/downloads/) 3.11 or later. Install it with [uv](https://github.com/astral-sh/uv), and put an API key in `.env` for each provider whose models you run (OpenAI and DeepSeek below):
 
 ```bash
-git clone https://github.com/youqad/boxing-gym-wip.git
-cd boxing-gym-wip
+git clone https://github.com/SynthStats/boxinggym-eval.git
+cd boxinggym-eval
 
 # Install with uv
 uv sync
@@ -130,13 +110,11 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 uv run pytest tests/ -v
 ```
 
-**Requirements**: Python 3.11+, API keys for desired LLM providers
+Models are called through [LiteLLM](https://github.com/BerriAI/litellm), so changing `llms=gpt-4o` to `llms=deepseek-v3.2` in the `run_experiment.py` line runs the same experiment on a DeepSeek model.
 
----
+## Analysing runs
 
-## Analysis Interfaces
-
-The `box` CLI handles result analysis. Sync once, query as needed.
+Each run is saved as a JSON file under `results/`. `box sync` parses those files into a Parquet cache, which every `box query` then reads, so sync again when new runs finish:
 
 ```
 ┌─────────────────┐    ┌──────────────────────────┐    ┌─────────────────┐
@@ -151,13 +129,13 @@ The `box` CLI handles result analysis. Sync once, query as needed.
 └─────────────────┘    └──────────────────────────┘
 ```
 
-Cache results first (run once, or after adding new results):
 ```bash
 uv run box sync --local results/    # parse JSON → .boxing-gym-cache/runs.parquet
 uv run box sync --status            # check current cache counts
 ```
 
-Then run queries (instant):
+Then query it by name:
+
 ```bash
 uv run box query --list             # list available queries
 uv run box query leaderboard        # model rankings with significance tests
@@ -169,7 +147,8 @@ uv run box query paper-comparison   # comparison with paper baselines
 uv run box query all                # full report (all queries)
 ```
 
-Filter and format options:
+Each one can be filtered and printed as Markdown or JSON:
+
 ```bash
 uv run box query leaderboard --min-budget 10     # filter by minimum budget
 uv run box query leaderboard --env dugongs       # filter by environment
@@ -178,24 +157,22 @@ uv run box query leaderboard --format json       # JSON output
 uv run box query all --include-outliers          # include flagged outliers
 ```
 
-### Canonical Snapshot Refresh
-
-Regenerate the pinned snapshot + README/HF summary blocks from the local cache:
+`box results --web` opens a [Streamlit](https://streamlit.io) dashboard, which can read the JSON files in `results/` or runs stored on W&B, with the pages listed below (in the [Hugging Face demo](https://huggingface.co/spaces/youkad/boxing-gym-dashboard), the Leaderboard page defaults to the snapshot above):
 
 ```bash
-uv run box sync --local results/
-uv run python scripts/refresh_canonical_results.py
+uv run box results --web
 ```
 
-### CLI, TUI, and Web
+| Page | Description |
+|------|-------------|
+| Leaderboard | Model rankings with bootstrap 95% CIs and significance testing |
+| Benchmark Dashboard | Paper baselines (GPT-4o, BOX), filtering, delta coloring |
+| Sweep Analysis | Parameter importance, model rankings, heatmaps, best configs |
+| Paper Comparison | Gandhi et al. baseline comparison |
+| PPL Examples | Generated PyMC models with sampling diagnostics |
+| LLM Call Logs | Cost breakdown by model, latency histograms, token counts |
 
-**CLI** — quick answers, scripting, CI/CD:
-```bash
-uv run box query leaderboard
-uv run box query all
-```
-
-**TUI** — interactive terminal:
+In a terminal, `box results --tui` shows the cache in these views instead:
 
 ```bash
 uv run box results --tui
@@ -211,21 +188,7 @@ uv run box results --tui
 | seed-stability | Cross-seed variance, unstable configs |
 | local-summary | Quick summary of local results |
 
-**Web** — Streamlit dashboard:
-```bash
-uv run box results --web
-```
-
-| Page | Description |
-|------|-------------|
-| Leaderboard | Model rankings with bootstrap 95% CIs and significance testing |
-| Benchmark Dashboard | Paper baselines (GPT-4o, BOX), filtering, delta coloring |
-| Sweep Analysis | Parameter importance, model rankings, heatmaps, best configs |
-| Paper Comparison | Gandhi et al. baseline comparison |
-| PPL Examples | Generated PyMC models with sampling diagnostics |
-| LLM Call Logs | Cost breakdown by model, latency histograms, token counts |
-
-### Make shortcuts
+The Makefile has shortcuts for the commonest commands:
 
 ```bash
 make aggregate   # box sync --local results/
@@ -233,11 +196,18 @@ make plot        # box query all
 make clean       # rm outputs/ .boxing-gym-cache/
 ```
 
----
+### Refreshing the results above
 
-## Configuration System
+One script regenerates the two blocks of results above, and the summary in `HF_SPACE_README.md`, from the cache:
 
-Hydra-based config with 10 environments, 15+ LLMs, and 3 experiment types:
+```bash
+uv run box sync --local results/
+uv run python scripts/refresh_canonical_results.py
+```
+
+## Configuration
+
+Settings are Hydra configs, and any of them can be overridden on the command line (`+wandb=true` also logs the run to [Weights & Biases](https://wandb.ai/site)):
 
 ```bash
 # Override any config parameter
@@ -249,40 +219,11 @@ uv run python run_experiment.py \
   +wandb=true
 ```
 
-**Configs**:
-- Environments: `conf/envs/*.yaml` (10 environments × 2 goal types)
-- LLMs: `conf/llms/*.yaml` (19 models across 9 providers)
-- Experiments: `conf/exp/{oed,oed_box,discovery}.yaml`
-- Sweeps: `sweeps/*.yaml` (WandB sweep configs)
+Environment configs live in `conf/envs/*.yaml`, two goal types for each of the 10 environments. The 19 models (from 9 providers) have theirs in `conf/llms/*.yaml`, and `conf/exp/{oed,oed_box,discovery}.yaml` holds the experiment types: `oed` is the setting described at the top, and in `discovery` the model also writes an explanation for a second model, which then predicts without running any experiments of its own. Weights & Biases sweeps are defined in `sweeps/*.yaml`, and several sweep agents can work through one sweep in parallel.
 
----
+## Credits
 
-## Upstream Docs
-
-Original BoxingGym documentation (environment details, API, metrics): **[README_upstream.md](README_upstream.md)**
-
----
-
-## Attribution
-
-This is a fork of **BoxingGym** by Gandhi et al. (Stanford University).
-
-**Original Paper**: [BoxingGym: Benchmarking Progress in Automated Experimental Design and Model Discovery](https://arxiv.org/abs/2501.01540)
-*Kanishk Gandhi, Michael Y. Li, Dorsa Sadigh, Noah D. Goodman (Stanford University)*
-
-**Original Repository**: [github.com/kanishkg/boxing-gym](https://github.com/kanishkg/boxing-gym)
-
----
-
-## License
-
-MIT (same as upstream)
-
----
-
-## Citation
-
-Cite the original paper:
+BoxingGym is the work of Kanishk Gandhi, Michael Y. Li, Dorsa Sadigh and Noah D. Goodman at Stanford University, described in [BoxingGym: Benchmarking Progress in Automated Experimental Design and Model Discovery](https://arxiv.org/abs/2501.01540), with the original code at [github.com/kanishkg/boxing-gym](https://github.com/kanishkg/boxing-gym). This fork keeps their MIT licence. Cite the original paper:
 
 ```bibtex
 @article{gandhi2025boxinggym,
