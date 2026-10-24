@@ -244,15 +244,23 @@ def render_metadata_block(metadata: dict[str, Any]) -> str:
     min_budget = filters.get("min_budget", 10)
     exclude_outliers = filters.get("exclude_outliers", True)
     snapshot_version = metadata.get("snapshot_version", "unknown")
-    return (
-        "Snapshot used for the tables below:\n"
-        f"- Snapshot version: `{snapshot_version}`\n"
-        f"- Source cache: `{metadata.get('source_path', 'unknown')}`\n"
-        f"- Filters: `budget >= {min_budget}`, "
-        f"`exclude_outliers={'true' if exclude_outliers else 'false'}`\n"
-        f"- Coverage: **{metadata.get('rows_after_filters', 0):,}** runs across "
-        f"**{metadata.get('models_after_filters', 0)} models** and "
-        f"**{metadata.get('envs_after_filters', 0)} environments**\n"
+    return _rows_to_markdown_table(
+        ["Snapshot", "Value"],
+        [
+            ["Snapshot version", f"`{snapshot_version}`"],
+            ["Source cache", f"`{metadata.get('source_path', 'unknown')}`"],
+            [
+                "Filters",
+                f"`budget >= {min_budget}`, "
+                f"`exclude_outliers={'true' if exclude_outliers else 'false'}`",
+            ],
+            [
+                "Coverage",
+                f"{metadata.get('rows_after_filters', 0):,} runs across "
+                f"{metadata.get('models_after_filters', 0)} models and "
+                f"{metadata.get('envs_after_filters', 0)} environments",
+            ],
+        ],
     )
 
 
@@ -261,7 +269,7 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
     for row in metrics.get("leaderboard", []):
         p_val = row.get("p_adjusted_vs_best")
         if row.get("rank") == 1:
-            p_text = "—"
+            p_text = "Reference"
         elif p_val is None:
             p_text = "n/a"
         else:
@@ -304,16 +312,12 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
     parts = [
         "### Overall Model Rankings",
         "",
-        "Mean z-score across all filtered runs (lower is better):",
-        "",
         _rows_to_markdown_table(
             ["Rank", "Model", "Mean z", "95% CI", "vs #1 (FDR p)", "Runs"],
             leaderboard_rows,
         ),
         "",
         "### Per-Environment Champions (Best Model Only)",
-        "",
-        "_Definition: mean over all runs for each model within environment (ignores `use_ppl`)._",
         "",
         _rows_to_markdown_table(
             ["Environment", "Best Model", "Mean z", "Status"],
@@ -322,8 +326,6 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         "",
         "### Per-Environment Champions (Best Model + PPL)",
         "",
-        "_Definition: mean over each `(model, use_ppl)` combination within environment._",
-        "",
         _rows_to_markdown_table(
             ["Environment", "Best Model", "use_ppl", "Mean z", "Status"],
             model_plus_ppl_rows,
@@ -331,17 +333,51 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         "",
         "### Key Findings",
         "",
-        f"- **{findings.get('best_model', 'n/a')}** leads overall with z={findings.get('best_model_mean_z', float('nan')):+.3f}",
-        f"- **{findings.get('n_env_beating_baseline_model_only', 0)}/{findings.get('n_env_total', 0)}** environments beat baseline under model-only definition",
-        f"- Models significantly worse than #1 (FDR < 0.05): {sig_line}",
+        _rows_to_markdown_table(
+            ["Finding", "Value"],
+            [
+                ["Overall leader", findings.get("best_model", "n/a")],
+                ["Leader mean z", f"{findings.get('best_model_mean_z', float('nan')):+.3f}"],
+                [
+                    "Environments beating baseline (model only)",
+                    f"{findings.get('n_env_beating_baseline_model_only', 0)}/{findings.get('n_env_total', 0)}",
+                ],
+                ["Models significantly worse than #1 (FDR < 0.05)", sig_line],
+            ],
+        ),
+        "",
+        "### Definitions",
+        "",
+        _rows_to_markdown_table(
+            ["Result", "Definition"],
+            [
+                ["Overall ranking", "Mean z-score across all filtered runs; lower is better"],
+                [
+                    "Model-only champion",
+                    "Mean over all runs for each model within environment; ignores `use_ppl`",
+                ],
+                [
+                    "Model + PPL champion",
+                    "Mean over each `(model, use_ppl)` combination within environment",
+                ],
+            ],
+        ),
         "",
         "### Statistical Methods",
         "",
-        "- **Welch's t-test**: Group comparison with unequal variances",
-        "- **Bootstrap CI**: 95% confidence intervals from resampling",
-        "- **Benjamini-Hochberg**: FDR correction for multiple comparisons",
+        _rows_to_markdown_table(
+            ["Method", "Definition"],
+            [
+                ["Welch's t-test", "Group comparison with unequal variances"],
+                ["Bootstrap CI", "95% confidence intervals from resampling"],
+                ["Benjamini-Hochberg", "FDR correction for multiple comparisons"],
+            ],
+        ),
         "",
-        f"_Snapshot version: `{metadata.get('snapshot_version', 'unknown')}`_",
+        _rows_to_markdown_table(
+            ["Snapshot", "Value"],
+            [["Snapshot version", f"`{metadata.get('snapshot_version', 'unknown')}`"]],
+        ),
     ]
     return "\n".join(parts).strip()
 

@@ -4,11 +4,11 @@
     "exclude_outliers": true,
     "min_budget": 10
   },
-  "generated_at_utc": "2026-02-13T21:14:31Z",
+  "generated_at_utc": "2026-10-24T04:57:05Z",
   "models_after_filters": 7,
   "rows_after_filters": 1948,
   "rows_total_before_filters": 5710,
-  "snapshot_version": "2026-02-13",
-  "source_git_commit": "a0211d7c6e83300cb1216d4789b084a910523083",
+  "snapshot_version": "2026-10-24",
+  "source_git_commit": "c43ed1ad383b5f8f14a7d4cbe7b6e1d2cf800977",
   "source_path": ".boxing-gym-cache/runs.parquet"
 }
