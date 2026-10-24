@@ -177,7 +177,7 @@ def compute_z_results(
 
     has_norm_factors = norm_mu is not None and norm_sigma is not None
     if has_norm_factors:
-        print("\n📊 Z-Score Results (standardized for paper comparison):")
+        print("\n📊 Z-Score Results (standardised for paper comparison):")
     else:
         print(
             f"⚠️  No normalization factors found for this goal (norm_mu={norm_mu}, norm_sigma={norm_sigma})"

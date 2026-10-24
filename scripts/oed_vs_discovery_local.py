@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Analyze OED vs Discovery performance from local results CSV."""
+"""Analyse OED vs Discovery performance from local results CSV."""
 
 import pandas as pd
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
 
 console = Console(width=140)
@@ -175,27 +174,7 @@ def main():
 
     console.print(dom_table)
 
-    # ===== Key Finding Summary =====
     console.print("\n" + "=" * 140)
-    console.print(
-        Panel.fit(
-            "[bold cyan]Key Findings for Slide[/bold cyan]\n\n"
-            "1. [bold]Discovery + PPL[/bold] likely best overall (pending full data)\n"
-            "   → LLM pattern matching + formal models = strongest combination\n\n"
-            "2. [bold]OED Mode[/bold] appears more challenging across the board\n"
-            "   → LLMs struggle with experimental design (redundant experiments, poor exploration)\n\n"
-            "3. [bold]PPL consistently helps[/bold] in both modes\n"
-            "   → Formalizing intuitions into code improves generalization\n\n"
-            "4. [bold]Duality Insight[/bold]: Success requires BOTH skills\n"
-            "   → Pattern recognition (what patterns exist?) vs Experimental design (which questions to ask?)\n"
-            "   → Discovery leverages LLM strengths; OED exposes LLM weaknesses\n\n"
-            "5. [bold]Implications for PPL Environments[/bold]\n"
-            "   → Harder to game: requires asking right questions, not just pattern matching\n"
-            "   → More robust measure of genuine understanding vs memorization",
-            title="[bold magenta]Summary for Presentation[/bold magenta]",
-            border_style="magenta",
-        )
-    )
 
 
 if __name__ == "__main__":

@@ -7,6 +7,8 @@ from scripts.refresh_canonical_results import (
     apply_canonical_filters,
     compute_champions_model_only,
     compute_champions_model_plus_ppl,
+    refresh_canonical_artifacts,
+    render_hf_snapshot_block,
     render_metadata_block,
     render_readme_results_block,
     replace_marked_block,
@@ -115,6 +117,7 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         "generated_at_utc": "2026-02-13T00:00:00Z",
         "snapshot_version": "v1",
         "source_path": ".boxing-gym-cache/runs.parquet",
+        "snapshot_path": "scripts/streamlit_app/demo_data/canonical_runs.parquet",
         "rows_after_filters": 1,
         "models_after_filters": 1,
         "envs_after_filters": 1,
@@ -123,6 +126,13 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
 
     results = render_readme_results_block(metrics, metadata)
     snapshot = render_metadata_block(metadata)
+
+    assert "### Mean scores in this snapshot" in results
+    assert "95% bootstrap confidence interval" in results
+    assert "Adjusted p-value vs rank 1" in results
+    assert "### Lowest mean score in each environment" in results
+    assert "### Lowest mean score by model and PyMC setting" in results
+    assert "### Statistical methods" in results
 
     # Facts and definitions are table content; only section headings stand outside it.
     for block in (snapshot, results):
@@ -135,26 +145,26 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         "| 3 | Model C | +0.500 | [+0.400, +0.600] | n/a | 1 |",
         "| e1 | Model A | -0.100 | ✓ Beats baseline |",
         "| e1 | Model A | true | -0.200 | ✓ Beats baseline |",
-        "| Overall leader | Model A |",
-        "| Leader mean z | +0.100 |",
+        "| Lowest pooled mean: model | Model A |",
+        "| Lowest pooled mean: score | +0.100 |",
         "| Environments beating baseline (model only) | 1/1 |",
-        "| Overall ranking | Mean z-score across all filtered runs; lower is better |",
-        "| Model-only champion | Mean over all runs for each model within environment; ignores `use_ppl` |",
-        "| Model + PPL champion | Mean over each `(model, use_ppl)` combination within environment |",
+        "| Pooled mean score | Mean standardised prediction error across each model's filtered runs; lower is better |",
+        "| Model within environment | Mean over all runs for each model within an environment, pooling PyMC settings |",
+        "| Model and PyMC setting | Mean over each `(model, use_ppl)` combination within an environment; `use_ppl=true` adds PyMC model refinement (Box's Loop) |",
         "| Welch's t-test | Group comparison with unequal variances |",
-        "| Bootstrap CI | 95% confidence intervals from resampling |",
-        "| Benjamini-Hochberg | FDR correction for multiple comparisons |",
+        "| Bootstrap confidence interval | 95% confidence intervals from resampling |",
+        "| Benjamini-Hochberg | Adjusts comparison p-values to control the false discovery rate |",
         "| Snapshot version | `v1` |",
     ]
     p_text = "0.012*" if significantly_worse_models else "0.420"
     expected_rows.append(f"| 2 | Model B | +0.300 | [+0.200, +0.400] | {p_text} | 12 |")
     sig_text = "Model B, Model C" if significantly_worse_models else "None"
-    expected_rows.append(f"| Models significantly worse than #1 (FDR < 0.05) | {sig_text} |")
+    expected_rows.append(f"| Models with higher mean error than rank 1 (adjusted p-value < 0.05) | {sig_text} |")
     for row in expected_rows:
         assert row in results
     for row in [
         "| Snapshot version | `v1` |",
-        "| Source cache | `.boxing-gym-cache/runs.parquet` |",
+        "| Bundled snapshot | `scripts/streamlit_app/demo_data/canonical_runs.parquet` |",
         "| Filters | `budget >= 10`, `exclude_outliers=true` |",
         "| Coverage | 1 runs across 1 models and 1 environments |",
     ]:
@@ -179,6 +189,46 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
     assert path.read_text() == expected
 
 
+def test_hf_snapshot_identifies_data_sources_and_preserves_values():
+    metadata = {
+        "generated_at_utc": "2026-02-13T00:00:00Z",
+        "source_path": "runs.parquet",
+        "snapshot_path": "outputs/canonical_runs.parquet",
+        "rows_after_filters": 22,
+        "models_after_filters": 2,
+        "envs_after_filters": 1,
+        "filters": {"min_budget": 10, "exclude_outliers": True},
+    }
+    metrics = {"key_findings": {"best_model": "Model A", "best_model_mean_z": 0.1}}
+    snapshot = render_hf_snapshot_block(metrics, metadata)
+
+    assert "| Generated | 2026-02-13T00:00:00Z |" in snapshot
+    assert "| Coverage | 22 runs across 2 models and 1 environments |" in snapshot
+    assert "| Lowest pooled mean | Model A (`z=+0.100`) |" in snapshot
+    assert "| Leaderboard | Bundled snapshot |" in snapshot
+    assert "| Sweep analysis | Selected Weights & Biases sweeps |" in snapshot
+    assert "| Bundled snapshot | `outputs/canonical_runs.parquet` |" in snapshot
+
+
+def test_committed_readmes_reproduce_from_bundled_metrics():
+    root = Path(__file__).resolve().parents[1]
+    data_dir = root / "scripts/streamlit_app/demo_data"
+    metrics = json.loads((data_dir / "canonical_metrics.json").read_text())
+    metadata = json.loads((data_dir / "canonical_metadata.json").read_text())
+
+    for name, marker, rendered in [
+        ("README.md", "CANONICAL_METADATA", render_metadata_block(metadata)),
+        ("README.md", "CANONICAL_RESULTS", render_readme_results_block(metrics, metadata)),
+        ("HF_SPACE_README.md", "CANONICAL_HF_SNAPSHOT", render_hf_snapshot_block(metrics, metadata)),
+    ]:
+        text = (root / name).read_text()
+        start = f"<!-- {marker}:START -->\n"
+        end = f"\n<!-- {marker}:END -->"
+        assert start in text and end in text, name
+        block = text.split(start, 1)[1].split(end, 1)[0]
+        assert block == rendered, name
+
+
 def test_metadata_json_roundtrip(tmp_path: Path):
     metadata = {
         "generated_at_utc": "2026-02-13T00:00:00Z",
@@ -195,3 +245,40 @@ def test_metadata_json_roundtrip(tmp_path: Path):
     loaded = json.loads(p.read_text())
     assert loaded["snapshot_version"] == "v1"
     assert loaded["rows_after_filters"] == 80
+
+
+def test_refresh_links_to_the_written_snapshot(tmp_path: Path):
+    source = tmp_path / "input.parquet"
+    pd.DataFrame(
+        [
+            {"model": "m1", "env": "e1", "budget": 10, "use_ppl": False, "z_mean": z}
+            for z in (-0.2, -0.1, 0.0)
+        ]
+    ).to_parquet(source, index=False)
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "<!-- CANONICAL_METADATA:START -->\n<!-- CANONICAL_METADATA:END -->\n"
+        "<!-- CANONICAL_RESULTS:START -->\n<!-- CANONICAL_RESULTS:END -->\n"
+    )
+    hf_readme = tmp_path / "HF_SPACE_README.md"
+    hf_readme.write_text("<!-- CANONICAL_HF_SNAPSHOT:START -->\n<!-- CANONICAL_HF_SNAPSHOT:END -->\n")
+    output = tmp_path / "snapshot"
+
+    _, metadata = refresh_canonical_artifacts(
+        input_path=source,
+        output_dir=output,
+        readme_path=readme,
+        hf_readme_path=hf_readme,
+        min_budget=10,
+        exclude_outliers=True,
+        snapshot_version="test",
+        n_bootstrap=10,
+        dry_run=False,
+    )
+
+    expected = output / "canonical_runs.parquet"
+    assert expected.is_file()
+    assert metadata["source_path"] == str(source)
+    assert metadata["snapshot_path"] == str(expected)
+    for document in (readme, hf_readme):
+        assert f"| Bundled snapshot | `{expected}` |" in document.read_text()

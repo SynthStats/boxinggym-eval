@@ -21,7 +21,7 @@ class DirectGoal(Goal):
         self.eval_pointer = 0
         self.update_param_cache = {}
         # Recomputed v2_2026-01-27: median of 5 seeds [42,123,456,789,101112]
-        # Previous: (0.5, 0.4693) — mu was rounded, actual mean-predictor ~0.327
+        # Previous: (0.5, 0.4693) - mu was rounded, actual mean-predictor ~0.327
         self.norm_mu = 0.3265
         self.norm_sigma = 0.4689
 

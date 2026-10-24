@@ -94,7 +94,7 @@ class ModelRankingsView(BaseView):
                     p_val = p_adj if p_adj is not None else p_raw
                     sig = comp.get("significant_fdr", False)
                     if p_val is None or pd.isna(p_val):
-                        cells.append("—")
+                        cells.append("-")
                     else:
                         cells.append(f"[red]p={p_val:.2f}*[/red]" if sig else f"p={p_val:.2f}")
 

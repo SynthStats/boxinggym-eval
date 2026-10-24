@@ -135,7 +135,7 @@ DEFAULT_GOALS: dict[str, str] = {
     "death_process": "num_infected",
 }
 
-# standardization constants: env -> (mean, std)
+# standardisation constants: env -> (mean, std)
 # v2_2026-01-27: synced with Goal class values, median of 5 seeds
 NORM_STATIC: dict[str, tuple[float, float]] = {
     "death_process": (223.3291, 190.6460),
@@ -350,7 +350,7 @@ def standardize(
     err_std: float,
     env_name: str,
 ) -> tuple[float | None, float | None]:
-    """Z-score standardization using static normalization constants."""
+    """Z-score standardisation using static normalisation constants."""
     mu0, sigma0 = NORM_STATIC.get(env_name, (None, None))
     if sigma0 in (None, 0):
         return None, None

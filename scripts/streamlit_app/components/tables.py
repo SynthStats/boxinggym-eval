@@ -35,12 +35,12 @@ def compute_delta_column(
     df["delta"] = df["z_mean"] - df["paper_ref"]
 
     # Don't show delta for paper baselines (comparing paper to paper is meaningless)
-    # Convert to object type first to allow mixed values, then set paper rows to "—"
+    # Convert to object type first to allow mixed values, then set paper rows to "-"
     if "model" in df.columns:
         paper_mask = df["model"].astype(str).str.contains("Paper", case=False, na=False)
-        # Format non-paper deltas as strings, paper rows as "—"
+        # Format non-paper deltas as strings, paper rows as "-"
         df["delta"] = df.apply(
-            lambda row: "—" if paper_mask.loc[row.name] else f"{row['delta']:+.4f}",
+            lambda row: "-" if paper_mask.loc[row.name] else f"{row['delta']:+.4f}",
             axis=1,
         )
 
@@ -59,7 +59,7 @@ def style_dataframe(df: pd.DataFrame) -> pd.io.formats.style.Styler:
 
     def color_delta(val):
         """Color delta values: green for negative (better), red for positive (worse)."""
-        if pd.isna(val) or val == "—":
+        if pd.isna(val) or val == "-":
             return ""
         # Handle string-formatted deltas (e.g., "+0.5900", "-0.1234")
         try:
@@ -87,7 +87,7 @@ def style_dataframe(df: pd.DataFrame) -> pd.io.formats.style.Styler:
         if val is True:
             return "✓"
         elif val is False:
-            return "—"
+            return "-"
         return val
 
     # Select columns for styling
@@ -120,7 +120,7 @@ def style_dataframe(df: pd.DataFrame) -> pd.io.formats.style.Styler:
 
     # Only format columns that exist
     format_dict = {k: v for k, v in format_dict.items() if k in df.columns}
-    styled = styled.format(format_dict, na_rep="—")
+    styled = styled.format(format_dict, na_rep="-")
 
     return styled
 
@@ -184,10 +184,10 @@ def render_results_table(
     display_cols = [c for c in display_cols if c in df.columns]
     df_display = df[display_cols].copy()
 
-    # Convert boolean columns to "✓" / "—" for cleaner display
+    # Convert boolean columns to "✓" / "-" for cleaner display
     for bool_col in ["include_prior", "use_ppl"]:
         if bool_col in df_display.columns:
-            df_display[bool_col] = df_display[bool_col].apply(lambda x: "✓" if x else "—")
+            df_display[bool_col] = df_display[bool_col].apply(lambda x: "✓" if x else "-")
 
     # Column configuration for Streamlit
     column_config = {
@@ -292,4 +292,4 @@ def render_summary_stats(df: pd.DataFrame) -> None:
             st.metric("Best z_mean", f"{best_z:.3f}")
             st.caption(f"{best_env} / {best_model}")
         else:
-            st.metric("Best z_mean", "—")
+            st.metric("Best z_mean", "-")

@@ -1,4 +1,4 @@
-"""ASCII chart utilities for TUI visualization."""
+"""ASCII chart utilities for terminal visualisation."""
 
 import math
 

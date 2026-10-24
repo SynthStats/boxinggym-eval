@@ -10,7 +10,6 @@ metric:
 # Lite discovery validation: 7 models × 1 env × 2 seeds = 14 runs
 # Evaluates budgets [0, 3] per run → 28 total evaluations
 # Purpose: Fast validation of discovery (communication) mode
-# Compute savings: 14 vs 350 runs (discovery portion of full suite) = 96% savings
 
 parameters:
   llms:

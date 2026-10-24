@@ -250,7 +250,7 @@ def get_llms(cfg, call_recorder=None, agent_name="box_loop"):
 
     # all experiments now use safe floor of 8192 - no more low legacy values
     experiment2tokens = {"ODE": 8192, "GPs": 8192, "box_loop": 8192, "Other_ODE": 8192}
-    # robust coercion: handle None, strings, booleans, invalid values
+    # Coerce None, strings, booleans and invalid values
     max_tokens = getattr(llm_cfg, "max_tokens", None)
     if max_tokens is not None and not isinstance(max_tokens, bool):
         try:

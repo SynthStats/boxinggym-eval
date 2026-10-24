@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Visualize W&B sweep benchmark results and compare to paper.
+Visualise W&B sweep benchmark results and compare to paper.
 
 Usage:
     # From local logs
@@ -79,7 +79,7 @@ def list_wandb_sweeps(
     if len(sweeps) >= limit:
         print(f"\n... showing first {limit} sweeps. Use --limit to see more.")
 
-    print("\nUse --sweep-id <id> to visualize a specific sweep")
+    print("\nUse --sweep-id <id> to visualise a specific sweep")
 
 
 def compare_all_sweeps(
@@ -560,7 +560,7 @@ def export_csv(aggregated: dict, output_path: Path):
 
 
 def generate_plots(aggregated: dict, output_dir: Path):
-    """Generate visualization plots."""
+    """Generate visualisation plots."""
     try:
         import matplotlib.pyplot as plt
         import seaborn as sns
@@ -615,7 +615,7 @@ def generate_plots(aggregated: dict, output_dir: Path):
     ax.axhline(y=0, color="black", linestyle="-", linewidth=0.5)
     ax.set_title("Model Performance at Budget 5 (vs Paper GPT-4o baseline)")
     ax.set_xlabel("Environment")
-    ax.set_ylabel("Standardized Error (Z-score, lower is better)")
+    ax.set_ylabel("Standardised Error (Z-score, lower is better)")
     ax.legend(title="Model", bbox_to_anchor=(1.02, 1), loc="upper left")
 
     plt.tight_layout()
@@ -653,7 +653,7 @@ def generate_plots(aggregated: dict, output_dir: Path):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Visualize W&B sweep benchmark results",
+        description="Visualise W&B sweep benchmark results",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -705,7 +705,7 @@ Examples:
 
     # Analysis options
     parser.add_argument(
-        "--budget", type=int, default=5, help="Primary budget to analyze (default: 5)"
+        "--budget", type=int, default=5, help="Primary budget to analyse (default: 5)"
     )
     parser.add_argument(
         "--outlier-threshold",
@@ -715,7 +715,7 @@ Examples:
     )
 
     # Output options
-    parser.add_argument("--plot", action="store_true", help="Generate visualization plots")
+    parser.add_argument("--plot", action="store_true", help="Generate visualisation plots")
     parser.add_argument("--csv", type=str, help="Export results to CSV file")
 
     args = parser.parse_args()

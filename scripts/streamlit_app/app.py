@@ -35,7 +35,7 @@ Agents interact with simulated environments (predator-prey dynamics, human decis
 
 with st.expander("Metrics"):
     st.markdown("""
-**z_mean:** Prediction error in standard deviations (lower is better). z=0 is perfect, z=-1 beats baseline, z=+2 is way off.
+**z_mean:** Prediction error relative to the naive baseline: `(error - baseline mean) / baseline standard deviation`. Lower is better; z=0 is baseline-level error, z=-1 is one standard deviation below the baseline, and z=+2 is two above it.
 
 **budget:** Number of experiments allowed (0 = zero-shot guess, 10 = run experiments first)
 
@@ -78,7 +78,7 @@ Dashboard for [**BoxingGym**](https://github.com/kanishkg/boxing-gym) (Gandhi et
 
 **Paper:** [arXiv:2501.01540](https://arxiv.org/abs/2501.01540)
 **Original:** [kanishkg/boxing-gym](https://github.com/kanishkg/boxing-gym)
-**Fork:** [youqad/boxing-gym](https://github.com/youqad/boxing-gym)
+**Evaluation:** [SynthStats/boxinggym-eval](https://github.com/SynthStats/boxinggym-eval)
 """)
 
 # Show environment info if sweep IDs are set

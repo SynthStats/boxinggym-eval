@@ -98,7 +98,7 @@ class BudgetProgressionView(BaseView):
             for b in display_budgets:
                 val = row.get(b, float("nan"))
                 if pd.isna(val):
-                    cells.append("[dim]—[/dim]")
+                    cells.append("[dim]-[/dim]")
                 else:
                     cells.append(colored_z(val))
                     if first_val is None:
@@ -108,7 +108,7 @@ class BudgetProgressionView(BaseView):
             if first_val is not None and last_val is not None:
                 cells.append(trend_indicator(first_val, last_val))
             else:
-                cells.append("[dim]—[/dim]")
+                cells.append("[dim]-[/dim]")
 
             table.add_row(*cells)
 

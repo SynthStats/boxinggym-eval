@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Analyze catastrophic failures by correlating sweep results with Weave LLM traces.
+"""Analyse catastrophic failures by correlating sweep results with Weave LLM traces.
 
 This script:
 1. Loads sweep results from WandB
 2. Identifies catastrophic failures (e.g., MSE > 1e10)
 3. Retrieves the corresponding LLM responses from Weave
-4. Analyzes patterns in the failures
+4. Analyses patterns in the failures
 
 Usage:
-    # Analyze specific sweep
+    # Analyse specific sweep
     python scripts/analyze_catastrophic_failures.py --sweep-id YOUR_SWEEP_ID
 
     # Export detailed analysis
@@ -125,7 +125,7 @@ def get_run_llm_traces(client, run_id: str, limit: int = 1000):
 
 
 def analyze_llm_patterns(traces: list[dict]):
-    """Analyze patterns in LLM responses."""
+    """Analyse patterns in LLM responses."""
     if not traces:
         return {}
 
@@ -159,7 +159,7 @@ def analyze_llm_patterns(traces: list[dict]):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Analyze catastrophic failures",
+        description="Analyse catastrophic failures",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -199,7 +199,7 @@ def main():
     # Setup environment
     setup_env()
 
-    print(f"🔍 Analyzing sweep: {args.sweep_id}")
+    print(f"🔍 Analysing sweep: {args.sweep_id}")
     print(f"   Entity: {args.entity}")
     print(f"   Project: {args.project}")
     print(f"   MSE threshold: {args.mse_threshold}")
@@ -242,10 +242,10 @@ def main():
     print("\n🔗 Connecting to Weave for LLM traces...")
     weave_client = weave.init(f"{args.entity}/{args.project}")
 
-    # Analyze LLM traces for catastrophic runs (sample)
+    # Analyse LLM traces for catastrophic runs (sample)
     detailed_analysis = []
     for idx, (_, run) in enumerate(catastrophic_runs.head(5).iterrows(), 1):
-        print(f"\n📝 Analyzing run {idx}/{min(5, len(catastrophic_runs))}: {run['name']}")
+        print(f"\n📝 Analysing run {idx}/{min(5, len(catastrophic_runs))}: {run['name']}")
 
         # Note: This is a simplified approach - in production you'd need to
         # match runs to traces by timestamp or other metadata

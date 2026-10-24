@@ -1,7 +1,6 @@
 """Usage tracking mixin for LLM agents.
 
 Tracks token usage, costs, latencies, and error counts for W&B logging.
-Extracted from LMExperimenter to reduce class complexity.
 """
 
 from typing import Any

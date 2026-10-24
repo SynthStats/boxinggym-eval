@@ -369,7 +369,7 @@ class LMExperimenter(UsageTrackerMixin):
         self.enable_thinking = enable_thinking  # ex: DeepSeek V3.2 thinking via extra_body
         self.allow_truncation = allow_truncation
         self.custom_llm_provider = custom_llm_provider  # custom endpoints (GLM, MiniMax, Kimi)
-        self.extra_headers = extra_headers  # Kimi requires User-Agent header
+        self.extra_headers = extra_headers
         self.system = None
         self.messages = []
         self.all_messages = []
@@ -509,7 +509,6 @@ class LMExperimenter(UsageTrackerMixin):
             # custom LLM provider for non-native endpoints (GLM, MiniMax, Kimi)
             if self.custom_llm_provider:
                 call_params["custom_llm_provider"] = self.custom_llm_provider
-            # extra headers (Kimi requires User-Agent identifying coding agent)
             if self.extra_headers:
                 call_params["extra_headers"] = self.extra_headers
             # thinking mode support via extra_body (DeepSeek V3.2, Kimi K2)
@@ -755,7 +754,7 @@ class LMExperimenter(UsageTrackerMixin):
             return None
 
     def parse_response_v2(self, response: str, is_observation: bool) -> str | None:
-        """Robust parser using TagParser with fallback to legacy regex."""
+        """Parse with TagParser, then fall back to the legacy regex."""
         tag = "observe" if is_observation else "answer"
         parser = TagParser(tag_name=tag, validation_mode="moderate")
         parsed = parser.parse(response)
@@ -780,7 +779,7 @@ class LMExperimenter(UsageTrackerMixin):
                 "attempt": i + 1,
             }
             full_response = self.prompt_llm(request_prompt, _weave_context=weave_ctx)
-            # use robust tag parsing (v2) with fallback to legacy regex.
+            # Parse with TagParser, then fall back to the legacy regex.
             response = self.parse_response_v2(full_response, is_observation)
             if response is not None:
                 # check if response has numbers (digits or common word-form numbers)

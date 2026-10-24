@@ -741,7 +741,7 @@ When asked to answer a question about the environment, respond in the format spe
         """
         Parse and validate an observation query.
 
-        Supported formats (robust to imperfect LLM formatting):
+        Supported formats:
           1) Prior mode (recommended):
              prizes: [v1, v2, v3], probs: [p1, p2, p3], win: <idx>
           2) Non-prior mode (recommended):

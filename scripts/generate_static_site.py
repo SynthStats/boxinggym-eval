@@ -165,7 +165,7 @@ def generate_index_html(charts: list[tuple[str, str, str]], n_runs: int) -> str:
     timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
     chart_links = "\n".join(
-        f'        <li><a href="{filename}">{title}</a> — {desc}</li>'
+        f'        <li><a href="{filename}">{title}</a> - {desc}</li>'
         for title, filename, desc in charts
     )
 
@@ -246,7 +246,7 @@ def generate_index_html(charts: list[tuple[str, str, str]], n_runs: int) -> str:
 
     <div class="footer">
         <p>
-            <a href="https://github.com/youqad/boxing-gym-wip">GitHub</a> ·
+            <a href="https://github.com/SynthStats/boxinggym-eval">GitHub</a> ·
             <a href="https://huggingface.co/spaces/youkad/boxing-gym-dashboard">HF Space</a> ·
             <a href="https://arxiv.org/abs/2501.01540">Paper</a>
         </p>

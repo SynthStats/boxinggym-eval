@@ -7,11 +7,10 @@ metric:
   goal: minimize
   name: eval/z_mean
 
-# Comprehensive lite OED validation: 7 models × 1 env × 2 seeds × 4 OED modes = 56 runs
+# Lite OED validation: 7 models × 1 env × 2 seeds × 4 OED modes = 56 runs
 # OED modes: include_prior=[true,false] × use_ppl=[false,true] = 4 combinations
 # Evaluates budgets [0, 3] per run → 112 total evaluations
 # Purpose: Fast validation of all OED variants before expensive full sweeps
-# Compute savings: 56 vs 1,530 runs (OED portion of full suite) = 96% savings
 
 parameters:
   llms:
@@ -26,7 +25,7 @@ parameters:
 
   envs:
     values:
-      - location_finding_direct  # Most representative environment (GPT-5.2 xHigh analysis)
+      - location_finding_direct
 
   exp:
     value: oed

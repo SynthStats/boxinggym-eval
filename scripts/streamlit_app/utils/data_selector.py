@@ -120,7 +120,7 @@ def render_data_source_selector(
                 "Select Sweep(s)",
                 options=list(sweep_options.keys()),
                 default=default_indices if default_indices else list(sweep_options.keys())[:1],
-                help="Select one or more sweeps to analyze (start with 1 for faster loading)",
+                help="Select one or more sweeps to analyse (start with 1 for faster loading)",
                 key=f"{key_prefix}_sweep_select",
             )
             sweep_ids = [sweep_options[s] for s in selected]

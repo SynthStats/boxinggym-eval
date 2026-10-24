@@ -58,7 +58,7 @@ def test_diversity(env_name: str, n_samples: int = 100, goal_name: str = "direct
         if (i + 1) % 20 == 0:
             print(f"Generated {i + 1}/{n_samples}...")
 
-    # Analyze uniqueness
+    # Analyse uniqueness
     unique_hashes = set(hashes)
     hash_counts = Counter(hashes)
 

@@ -348,27 +348,27 @@ class PPLExamplesView(BaseView):
         )
 
         for run in sorted_runs:
-            z_mean = f"{run['z_mean']:.3f}" if pd.notna(run.get("z_mean")) else "—"
-            loo = f"{run['best_loo']:.2f}" if pd.notna(run.get("best_loo")) else "—"
+            z_mean = f"{run['z_mean']:.3f}" if pd.notna(run.get("z_mean")) else "-"
+            loo = f"{run['best_loo']:.2f}" if pd.notna(run.get("best_loo")) else "-"
             progs = str(run.get("num_programs", 1))
 
             div_val = run.get("best_divergences")
             div = (
                 _color_divergences(int(div_val))
                 if div_val is not None and pd.notna(div_val)
-                else Text("—", style="dim")
+                else Text("-", style="dim")
             )
             rhat_val = run.get("best_max_rhat")
             rhat = (
                 _color_rhat(rhat_val)
                 if rhat_val is not None and pd.notna(rhat_val)
-                else Text("—", style="dim")
+                else Text("-", style="dim")
             )
             ess_val = run.get("best_min_ess")
             ess = (
                 _color_ess(ess_val)
                 if ess_val is not None and pd.notna(ess_val)
-                else Text("—", style="dim")
+                else Text("-", style="dim")
             )
 
             table.add_row(

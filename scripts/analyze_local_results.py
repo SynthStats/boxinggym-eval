@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Analyze local JSON results to find extreme predictions and extract raw LLM responses.
+Analyse local JSON results to find extreme predictions and extract raw LLM responses.
 """
 
 import json
@@ -153,7 +153,7 @@ def main():
     results_dir = Path(__file__).parent.parent / "results"
 
     print("=" * 80)
-    print("🔍 ANALYZING LOCAL RESULTS FOR EXTREME PREDICTIONS")
+    print("🔍 ANALYSING LOCAL RESULTS FOR EXTREME PREDICTIONS")
     print("=" * 80)
 
     # Strategy 1: Find all extreme predictions
@@ -204,9 +204,9 @@ def main():
     else:
         print("❌ No matches found for 67,219,139")
 
-    # Strategy 3: Analyze peregrines specifically
+    # Strategy 3: Analyse peregrines specifically
     print("\n" + "=" * 80)
-    print("🦅 Analyzing peregrines results specifically")
+    print("🦅 Analysing peregrines results specifically")
     print("=" * 80)
 
     peregrines_dir = results_dir / "peregrines"

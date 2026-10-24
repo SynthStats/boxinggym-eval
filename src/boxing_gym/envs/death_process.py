@@ -15,7 +15,7 @@ class DirectDeath(Goal):
         self.eval_pointer = 0
         self.update_param_cache = {}
         # Recomputed v2_2026-01-27: median of 5 seeds [42,123,456,789,101112]
-        # Previous: (222.2998, 189.7685) — confirmed correct, minor update
+        # Previous: (222.2998, 189.7685) - confirmed correct, minor update
         self.norm_mu, self.norm_sigma = (223.3291, 190.6460)
 
     def get_system_message(self, include_prior):

@@ -153,10 +153,10 @@ class TestParseWandbRunName:
 
 
 class TestStandardize:
-    """Tests for z-score standardization."""
+    """Tests for z-score standardisation."""
 
     def test_known_env_standardizes(self):
-        # dugongs: (1.3199, 17.0068) — v2_2026-01-27
+        # dugongs: (1.3199, 17.0068) - v2_2026-01-27
         z_mean, z_std = standardize(1.3199, 1.0, "dugongs")
         assert z_mean is not None
         assert z_mean == pytest.approx(0.0, abs=0.01)  # z-score of mean is 0

@@ -26,10 +26,6 @@ api_key: ${oc.env:MOONSHOT_API_KEY,null}
 # OpenAI-compatible endpoint
 custom_llm_provider: "openai"
 
-# Required: Kimi For Coding validates calling agent via User-Agent header
-extra_headers:
-  User-Agent: "claude-code/1.0"
-
 supports_system_message: true
 supports_thinking: true
 supports_streaming: true

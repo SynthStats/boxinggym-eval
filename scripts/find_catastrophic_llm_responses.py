@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Find and analyze LLM responses from catastrophic runs in Weave traces.
+"""Find and analyse LLM responses from catastrophic runs in Weave traces.
 
 This script retrieves raw LLM responses from Weave for runs where the model
 produced catastrophically bad results (e.g., MSE > 1e10).
@@ -143,8 +143,8 @@ def get_llm_calls(
 
 
 def analyze_responses(calls):
-    """Analyze LLM responses for patterns."""
-    print(f"\n📊 Analyzing {len(calls)} LLM calls...")
+    """Analyse LLM responses for patterns."""
+    print(f"\n📊 Analysing {len(calls)} LLM calls...")
 
     if not calls:
         print("No calls found.")
@@ -167,7 +167,7 @@ def analyze_responses(calls):
         print(f"  - First call: {min(timestamps)}")
         print(f"  - Last call: {max(timestamps)}")
 
-    # Analyze response patterns
+    # Analyse response patterns
     print("\n🔍 Response patterns:")
 
     # Check for common issues
@@ -316,7 +316,7 @@ def main():
 
     print(f"\n✅ Retrieved {len(calls)} LLM calls")
 
-    # Analyze responses
+    # Analyse responses
     if not args.no_analysis and calls:
         analyze_responses(calls)
         show_sample_responses(calls, n=args.samples)

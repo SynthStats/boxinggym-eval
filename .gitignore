@@ -168,35 +168,23 @@ cython_debug/
 #.idea/
 
 results/
+validation_reports/
 logs/
 wandb/
 wandb-dir/
-.specstory/
-.cursorindexingignore
-AGENTS.md
-CLAUDE.md
 .uv_cache/
 .sesskey
 .repo_ignore
-background-documents/
-slides/
 
-scripts/_archive/
-.archive/
 .streamlit/
 .ruff_cache/
 docs/
 checkpoints/
 .boxing-gym-cache/
 
-# Private/personal files
-scripts/vps_*.sh
 .env.hf.template
 data/
 
-# Local work folders (transient/personal)
-.scratch/
-.notes/
 .quarantine/
 
 # Generated static site (built by CI)

@@ -212,6 +212,7 @@ def compute_metrics(df: pd.DataFrame, *, n_bootstrap: int = 10_000) -> dict[str,
 def build_metadata(
     *,
     source_path: Path,
+    snapshot_path: Path,
     stats: dict[str, Any],
     min_budget: int,
     exclude_outliers: bool,
@@ -220,6 +221,7 @@ def build_metadata(
     return {
         "generated_at_utc": utc_now_iso(),
         "source_path": str(source_path),
+        "snapshot_path": str(snapshot_path),
         "source_git_commit": _git_commit(),
         "filters": {
             "min_budget": int(min_budget),
@@ -248,7 +250,7 @@ def render_metadata_block(metadata: dict[str, Any]) -> str:
         ["Snapshot", "Value"],
         [
             ["Snapshot version", f"`{snapshot_version}`"],
-            ["Source cache", f"`{metadata.get('source_path', 'unknown')}`"],
+            ["Bundled snapshot", f"`{metadata['snapshot_path']}`"],
             [
                 "Filters",
                 f"`budget >= {min_budget}`, "
@@ -310,39 +312,39 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
     sig_line = ", ".join(sig_worse) if sig_worse else "None"
 
     parts = [
-        "### Overall Model Rankings",
+        "### Mean scores in this snapshot",
         "",
         _rows_to_markdown_table(
-            ["Rank", "Model", "Mean z", "95% CI", "vs #1 (FDR p)", "Runs"],
+            ["Rank", "Model", "Mean z", "95% bootstrap confidence interval", "Adjusted p-value vs rank 1", "Runs"],
             leaderboard_rows,
         ),
         "",
-        "### Per-Environment Champions (Best Model Only)",
+        "### Lowest mean score in each environment",
         "",
         _rows_to_markdown_table(
-            ["Environment", "Best Model", "Mean z", "Status"],
+            ["Environment", "Model", "Mean z", "Status"],
             model_only_rows,
         ),
         "",
-        "### Per-Environment Champions (Best Model + PPL)",
+        "### Lowest mean score by model and PyMC setting",
         "",
         _rows_to_markdown_table(
-            ["Environment", "Best Model", "use_ppl", "Mean z", "Status"],
+            ["Environment", "Model", "PyMC refinement", "Mean z", "Status"],
             model_plus_ppl_rows,
         ),
         "",
-        "### Key Findings",
+        "### Snapshot comparisons",
         "",
         _rows_to_markdown_table(
             ["Finding", "Value"],
             [
-                ["Overall leader", findings.get("best_model", "n/a")],
-                ["Leader mean z", f"{findings.get('best_model_mean_z', float('nan')):+.3f}"],
+                ["Lowest pooled mean: model", findings.get("best_model", "n/a")],
+                ["Lowest pooled mean: score", f"{findings.get('best_model_mean_z', float('nan')):+.3f}"],
                 [
                     "Environments beating baseline (model only)",
                     f"{findings.get('n_env_beating_baseline_model_only', 0)}/{findings.get('n_env_total', 0)}",
                 ],
-                ["Models significantly worse than #1 (FDR < 0.05)", sig_line],
+                ["Models with higher mean error than rank 1 (adjusted p-value < 0.05)", sig_line],
             ],
         ),
         "",
@@ -351,26 +353,26 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Result", "Definition"],
             [
-                ["Overall ranking", "Mean z-score across all filtered runs; lower is better"],
+                ["Pooled mean score", "Mean standardised prediction error across each model's filtered runs; lower is better"],
                 [
-                    "Model-only champion",
-                    "Mean over all runs for each model within environment; ignores `use_ppl`",
+                    "Model within environment",
+                    "Mean over all runs for each model within an environment, pooling PyMC settings",
                 ],
                 [
-                    "Model + PPL champion",
-                    "Mean over each `(model, use_ppl)` combination within environment",
+                    "Model and PyMC setting",
+                    "Mean over each `(model, use_ppl)` combination within an environment; `use_ppl=true` adds PyMC model refinement (Box's Loop)",
                 ],
             ],
         ),
         "",
-        "### Statistical Methods",
+        "### Statistical methods",
         "",
         _rows_to_markdown_table(
             ["Method", "Definition"],
             [
                 ["Welch's t-test", "Group comparison with unequal variances"],
-                ["Bootstrap CI", "95% confidence intervals from resampling"],
-                ["Benjamini-Hochberg", "FDR correction for multiple comparisons"],
+                ["Bootstrap confidence interval", "95% confidence intervals from resampling"],
+                ["Benjamini-Hochberg", "Adjusts comparison p-values to control the false discovery rate"],
             ],
         ),
         "",
@@ -386,19 +388,26 @@ def render_hf_snapshot_block(metrics: dict[str, Any], metadata: dict[str, Any]) 
     best = metrics.get("key_findings", {}).get("best_model", "n/a")
     best_z = metrics.get("key_findings", {}).get("best_model_mean_z")
     best_z_text = f"{best_z:+.3f}" if isinstance(best_z, (int, float)) else "n/a"
-    return (
-        "## Canonical Snapshot\n\n"
-        f"- Generated: **{metadata.get('generated_at_utc', 'unknown')}**\n"
-        f"- Source: `{metadata.get('source_path', 'unknown')}`\n"
-        f"- Filters: `budget >= {metadata.get('filters', {}).get('min_budget', 10)}`, "
-        f"`exclude_outliers={'true' if metadata.get('filters', {}).get('exclude_outliers', True) else 'false'}`\n"
-        f"- Valid runs: **{metadata.get('rows_after_filters', 0):,}** across "
-        f"**{metadata.get('models_after_filters', 0)} models** and "
-        f"**{metadata.get('envs_after_filters', 0)} environments**\n"
-        f"- Current #1 model: **{best}** (`z={best_z_text}`)\n\n"
-        "The Leaderboard page defaults to this pinned snapshot in HF demo mode.\n"
-        "Live W&B views are exploratory and may differ from the published snapshot."
-    )
+    filters = metadata.get("filters", {})
+    rows = [
+        ["Generated", str(metadata.get("generated_at_utc", "unknown"))],
+        ["Bundled snapshot", f"`{metadata['snapshot_path']}`"],
+        [
+            "Filters",
+            f"`budget >= {filters.get('min_budget', 10)}`, "
+            f"`exclude_outliers={'true' if filters.get('exclude_outliers', True) else 'false'}`",
+        ],
+        [
+            "Coverage",
+            f"{metadata.get('rows_after_filters', 0):,} runs across "
+            f"{metadata.get('models_after_filters', 0)} models and "
+            f"{metadata.get('envs_after_filters', 0)} environments",
+        ],
+        ["Lowest pooled mean", f"{best} (`z={best_z_text}`)"],
+        ["Leaderboard", "Bundled snapshot"],
+        ["Sweep analysis", "Selected Weights & Biases sweeps"],
+    ]
+    return "## Snapshot\n\n" + _rows_to_markdown_table(["Snapshot", "Value"], rows)
 
 
 def replace_marked_block(path: Path, marker_name: str, new_content: str) -> None:
@@ -440,6 +449,7 @@ def refresh_canonical_artifacts(
     metrics = compute_metrics(filtered_df, n_bootstrap=n_bootstrap)
     metadata = build_metadata(
         source_path=input_path,
+        snapshot_path=output_dir / CANONICAL_PARQUET,
         stats=stats,
         min_budget=min_budget,
         exclude_outliers=exclude_outliers,

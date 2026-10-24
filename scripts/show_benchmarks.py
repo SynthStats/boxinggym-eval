@@ -2,7 +2,7 @@
 """Display benchmark results with paper comparisons.
 
 Scans a results/ tree for BoxingGym JSON outputs, prints a concise table
-with raw and standardized errors. For Discovery@10 (include_prior=True) it
+with raw and standardised errors. For Discovery@10 (include_prior=True) it
 reports the paper reference and the delta to the paper.
 
 Usage:

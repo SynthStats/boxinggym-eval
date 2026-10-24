@@ -1,7 +1,6 @@
 """Unified model pricing and configuration registry.
 
 This is the single source of truth for all model pricing, token limits, and API configuration.
-Previously this data was scattered across agent.py, model_config.py, and base_agent.py.
 
 Usage:
     from boxing_gym.agents.pricing import (

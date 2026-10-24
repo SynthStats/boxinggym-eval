@@ -233,7 +233,7 @@ with c2:
         st.metric("Models", n_models)
         st.caption(model_list)
     else:
-        st.metric("Models", "—")
+        st.metric("Models", "-")
         st.caption("No model column")
 
 with c3:
@@ -245,7 +245,7 @@ with c3:
         st.metric("Environments", n_envs)
         st.caption(env_list)
     else:
-        st.metric("Environments", "—")
+        st.metric("Environments", "-")
         st.caption("No environment column")
 
 with c4:
@@ -258,7 +258,7 @@ with c4:
         st.metric("Best z_mean", f"{best_val:.3f}")
         st.caption(f"{best_env} / {best_model}")
     else:
-        st.metric("Best z_mean", "—")
+        st.metric("Best z_mean", "-")
         st.caption("No valid metric values")
 
 st.divider()
@@ -546,7 +546,7 @@ if not best_configs.empty:
             "z_mean": "{:+.3f}",
             "seed": "{:.0f}",
         },
-        na_rep="—",
+        na_rep="-",
     )
 
     st.dataframe(
@@ -559,4 +559,4 @@ st.divider()
 sweep_display = (
     "local" if selection.data_source == "Local JSON Files" else ", ".join(selection.sweep_ids)
 )
-st.caption(f"Analyzing sweeps: {sweep_display} | {len(df)} total runs")
+st.caption(f"Analysing sweeps: {sweep_display} | {len(df)} total runs")

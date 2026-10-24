@@ -128,7 +128,7 @@ def call_llm_messages_sync(
 
     Returns the raw LiteLLM response object (ChatCompletions or Responses).
     """
-    # robust coercion: handle strings, floats, booleans
+    # Coerce strings, floats and booleans
     if max_tokens is not None and not isinstance(max_tokens, bool):
         try:
             max_tokens = int(float(max_tokens))  # handles "8192.0" strings

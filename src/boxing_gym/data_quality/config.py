@@ -8,7 +8,7 @@ BASELINE_VERSION = "v2_2026-01-27"
 # z-score threshold: values beyond this are pipeline failures, not bad runs
 Z_OUTLIER_THRESHOLD = 100
 
-# robust statistics
+# Median absolute deviation
 SIGMA_FLOOR = 0.01  # minimum sigma to prevent division-by-zero
 MAD_MULTIPLIER = 2.0  # flag runs > 2 MAD from median
 

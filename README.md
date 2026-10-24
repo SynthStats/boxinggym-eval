@@ -24,7 +24,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | [Upstream](https://github.com/kanishkg/boxing-gym), [documentation](README_upstream.md) | Gandhi, Li, Sadigh and Goodman, Stanford University |
 | [Dashboard](https://huggingface.co/spaces/youkad/boxing-gym-dashboard) | Model rankings, environment comparisons and PyMC examples |
 | [Data](scripts/streamlit_app/demo_data/canonical_runs.parquet), [metrics](scripts/streamlit_app/demo_data/canonical_metrics.json), [metadata](scripts/streamlit_app/demo_data/canonical_metadata.json) | 2026-10-24 snapshot; 1,948 runs, 7 models, 10 environments; budget ≥ 10; outliers excluded |
-| Snapshot scores | Mean standardized prediction error; lower is better; 95% bootstrap confidence intervals |
+| Snapshot scores | Mean standardised prediction error; lower is better; 95% bootstrap confidence intervals |
 | Snapshot comparisons | Welch's t-test; Benjamini-Hochberg adjustment for false discovery rate |
 | `box sync --local results/` | Cache local JSON runs as Parquet |
 | `box query --list` | List analyses: rankings, experiment settings and environment difficulty |
@@ -32,7 +32,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | `uv run box results --web` | Streamlit rankings, paper comparisons, sweep analysis, PyMC diagnostics and call costs |
 | [Experiment runner](run_experiment.py) | API keys in `.env` for selected providers |
 | [Environment configs](conf/envs/), [model configs](conf/llms/), [experiment configs](conf/exp/), [sweeps](sweeps/) | Hydra settings and Weights & Biases sweeps |
-| [Snapshot refresh](scripts/refresh_canonical_results.py) | Rebuild data and metrics from `.boxing-gym-cache/runs.parquet` |
+| [Snapshot refresh](scripts/refresh_canonical_results.py) | Regenerate the bundled snapshot and its result tables |
 | [Makefile](Makefile) | `make aggregate` caches results; `make plot` prints analyses |
 | Tools | [Python](https://www.python.org/downloads/) 3.11+, [uv](https://github.com/astral-sh/uv), [PyMC](https://www.pymc.io/), [LiteLLM](https://github.com/BerriAI/litellm), [Streamlit](https://streamlit.io), [Weights & Biases](https://wandb.ai/site) |
 | [Tests](https://github.com/SynthStats/boxinggym-eval/actions/workflows/ci.yml) | `uv run pytest tests/ -v` |
@@ -43,15 +43,15 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | Snapshot | Value |
 | --- | --- |
 | Snapshot version | `2026-10-24` |
-| Source cache | `.boxing-gym-cache/runs.parquet` |
+| Bundled snapshot | `scripts/streamlit_app/demo_data/canonical_runs.parquet` |
 | Filters | `budget >= 10`, `exclude_outliers=true` |
 | Coverage | 1,948 runs across 7 models and 10 environments |
 <!-- CANONICAL_METADATA:END -->
 
 <!-- CANONICAL_RESULTS:START -->
-### Overall Model Rankings
+### Mean scores in this snapshot
 
-| Rank | Model | Mean z | 95% CI | vs #1 (FDR p) | Runs |
+| Rank | Model | Mean z | 95% bootstrap confidence interval | Adjusted p-value vs rank 1 | Runs |
 | --- | --- | --- | --- | --- | --- |
 | 1 | MiniMax-M2.1 | +0.185 | [+0.071, +0.315] | Reference | 311 |
 | 2 | GPT-4o | +0.256 | [+0.138, +0.388] | 0.424 | 226 |
@@ -61,9 +61,9 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | 6 | GLM-4.7 | +0.546 | [+0.257, +0.904] | 0.120 | 314 |
 | 7 | GPT-5.1-Codex-Mini | +0.586 | [+0.310, +0.966] | 0.120 | 238 |
 
-### Per-Environment Champions (Best Model Only)
+### Lowest mean score in each environment
 
-| Environment | Best Model | Mean z | Status |
+| Environment | Model | Mean z | Status |
 | --- | --- | --- | --- |
 | death_process | GPT-4o | -0.903 | ✓ Beats baseline |
 | lotka_volterra | DeepSeek-V3.2 | -0.301 | ✓ Beats baseline |
@@ -76,9 +76,9 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | emotion | Qwen3-32B | +1.286 | Above baseline |
 | location_finding | GPT-4o | +1.396 | Above baseline |
 
-### Per-Environment Champions (Best Model + PPL)
+### Lowest mean score by model and PyMC setting
 
-| Environment | Best Model | use_ppl | Mean z | Status |
+| Environment | Model | PyMC refinement | Mean z | Status |
 | --- | --- | --- | --- | --- |
 | death_process | Qwen3-32B | true | -1.170 | ✓ Beats baseline |
 | lotka_volterra | DeepSeek-V3.2 | false | -0.301 | ✓ Beats baseline |
@@ -91,30 +91,30 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | survival | GLM-4.7 | false | +0.429 | Above baseline |
 | emotion | Qwen3-32B | false | +1.286 | Above baseline |
 
-### Key Findings
+### Snapshot comparisons
 
 | Finding | Value |
 | --- | --- |
-| Overall leader | MiniMax-M2.1 |
-| Leader mean z | +0.185 |
+| Lowest pooled mean: model | MiniMax-M2.1 |
+| Lowest pooled mean: score | +0.185 |
 | Environments beating baseline (model only) | 6/10 |
-| Models significantly worse than #1 (FDR < 0.05) | None |
+| Models with higher mean error than rank 1 (adjusted p-value < 0.05) | None |
 
 ### Definitions
 
 | Result | Definition |
 | --- | --- |
-| Overall ranking | Mean z-score across all filtered runs; lower is better |
-| Model-only champion | Mean over all runs for each model within environment; ignores `use_ppl` |
-| Model + PPL champion | Mean over each `(model, use_ppl)` combination within environment |
+| Pooled mean score | Mean standardised prediction error across each model's filtered runs; lower is better |
+| Model within environment | Mean over all runs for each model within an environment, pooling PyMC settings |
+| Model and PyMC setting | Mean over each `(model, use_ppl)` combination within an environment; `use_ppl=true` adds PyMC model refinement (Box's Loop) |
 
-### Statistical Methods
+### Statistical methods
 
 | Method | Definition |
 | --- | --- |
 | Welch's t-test | Group comparison with unequal variances |
-| Bootstrap CI | 95% confidence intervals from resampling |
-| Benjamini-Hochberg | FDR correction for multiple comparisons |
+| Bootstrap confidence interval | 95% confidence intervals from resampling |
+| Benjamini-Hochberg | Adjusts comparison p-values to control the false discovery rate |
 
 | Snapshot | Value |
 | --- | --- |

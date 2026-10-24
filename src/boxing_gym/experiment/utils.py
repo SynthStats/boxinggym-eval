@@ -29,10 +29,10 @@ def create_fallback_result(error_msg=""):
 
 
 def compute_z_score(err_mean: float, norm_mu: float, norm_sigma: float) -> float:
-    """Standardize raw error to Z-score for paper comparison.
+    """Standardise raw error to Z-score for paper comparison.
 
-    The paper reports standardized Z-scores, not raw error values.
-    This function converts raw MSE/MAE to the paper's standardized metric.
+    The paper reports standardised Z-scores, not raw error values.
+    This function converts raw MSE/MAE to the paper's standardised metric.
 
     Note: The paper's reported std is computed as std(z_means) ACROSS multiple
     seeds during aggregation, not per-run. Per-run z_std is not meaningful

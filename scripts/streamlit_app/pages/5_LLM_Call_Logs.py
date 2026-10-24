@@ -1,4 +1,4 @@
-"""LLM Call Logs - View and analyze JSONL call recordings.
+"""LLM Call Logs - View and analyse JSONL call recordings.
 
 Browse LLM call logs from experiments with filtering, cost analysis, and latency charts.
 """

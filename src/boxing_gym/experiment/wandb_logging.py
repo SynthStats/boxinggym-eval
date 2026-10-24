@@ -1465,7 +1465,7 @@ def log_wandb_results(
         wandb_meta=wandb_meta,
     )
 
-    # comprehensive WandB logging (independent of Weave)
+    # WandB logging (independent of Weave)
     try:
         _log_llm_calls_table(wandb_module, wandb_run, scientist_agent, naive_agent)
     except Exception as e:

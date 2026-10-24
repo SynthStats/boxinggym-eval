@@ -177,7 +177,7 @@ with st.expander("Rankings table", expanded=True):
                 "Model": r["model"],
                 "Mean z": f"{r['mean']:+.3f}",
                 "95% CI": f"[{r['ci_low']:+.3f}, {r['ci_high']:+.3f}]",
-                "vs #1 (p)": f"{p_val:.3f}" if p_val is not None else "—",
+                "vs #1 (p)": f"{p_val:.3f}" if p_val is not None else "-",
                 "n": r["n"],
             }
         )
@@ -337,7 +337,7 @@ if len(champions) >= 2:
         f"(z\u2009=\u2009{hardest['z_mean']:+.3f})"
     )
 
-# 5. model specialization — count env wins per model
+# 5. model specialization - count env wins per model
 if len(champions) >= 3:
     from collections import Counter
 
@@ -507,7 +507,7 @@ with st.expander("Load local summary", expanded=False):
                                     (final_df["config/envs"] == env)
                                     & (final_df["config/llms"] == model)
                                 ).any()
-                                row[str(model)] = "✓" if has_data else "—"
+                                row[str(model)] = "✓" if has_data else "-"
                             coverage_rows.append(row)
                         if coverage_rows:
                             st.dataframe(

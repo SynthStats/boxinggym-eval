@@ -14,7 +14,7 @@ class DirectGoal(Goal):
         self.eval_pointer = 0
         self.update_param_cache = {}
         # Recomputed v2_2026-01-27: median of 5 seeds [42,123,456,789,101112]
-        # Previous: (8.3274, 17.5483) — confirmed, minor update
+        # Previous: (8.3274, 17.5483) - confirmed, minor update
         self.norm_mu, self.norm_sigma = (8.2500, 17.5755)
 
     def get_system_message(self, include_prior):

@@ -293,12 +293,12 @@ def search_for_specific_value(
 
 
 def analyze_response_extraction(run_id: str, entity: str = None, project: str = "boxing-gym"):
-    """Analyze how responses were extracted in a specific run."""
+    """Analyse how responses were extracted in a specific run."""
     entity = entity or os.environ.get("WANDB_ENTITY", "")
     api = wandb.Api()
     run = api.run(f"{entity}/{project}/{run_id}")
 
-    print(f"\n🔬 Analyzing response extraction for run {run_id}...")
+    print(f"\n🔬 Analysing response extraction for run {run_id}...")
 
     # Check config for relevant settings
     config = run.config

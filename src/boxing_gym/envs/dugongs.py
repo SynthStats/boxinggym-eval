@@ -19,7 +19,7 @@ class DirectGoal(Goal):
         self.eval_pointer = 0
         self.update_params_cache = {}
         # Recomputed v2_2026-01-27: median of 5 seeds [42,123,456,789,101112]
-        # Previous: (0.9059, 9.2342) — sigma increased due to high-variance seeds
+        # Previous: (0.9059, 9.2342) - sigma increased due to high-variance seeds
         self.norm_mu, self.norm_sigma = (1.3199, 17.0068)
 
     def get_system_message(self, include_prior):

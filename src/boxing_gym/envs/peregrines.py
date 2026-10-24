@@ -15,7 +15,7 @@ class DirectGoal(Goal):
         self.eval_pointer = 0
         self.update_parameters_cache = {}
         # Recomputed v2_2026-01-27: median of 5 seeds [42,123,456,789,101112]
-        # Previous: (8566.62, 12530.86) — re-verified, adjusted for seed variance
+        # Previous: (8566.62, 12530.86) - re-verified, adjusted for seed variance
         self.norm_mu, self.norm_sigma = 6908.6500, 10581.9558
 
     def _sample_eval_time(self) -> float:

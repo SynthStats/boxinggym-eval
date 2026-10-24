@@ -192,7 +192,7 @@ def main():
 
     output_file = plot_progression(data, output_file=args.output, title=args.title)
 
-    print("\n🎨 Visualization complete!")
+    print("\n🎨 Visualisation complete!")
     print(f"   View: {output_file}")
 
 

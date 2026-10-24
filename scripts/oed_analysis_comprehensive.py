@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive OED analysis for all local results."""
+"""OED analysis for all local results."""
 
 import json
 from pathlib import Path

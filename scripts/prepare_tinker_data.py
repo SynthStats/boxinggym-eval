@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Prepare Tinker Training Data from BoxingGym Results
+Prepare Tinker training data from BoxingGym results
 
 Converts BoxingGym experiment results (JSON) into Tinker-compatible JSONL format.
 Extracts from best-performing models per environment based on sweep results.
 
 Usage:
-    # Extract from VPS results (best models per env)
+    # Extract result files for the selected models in each environment
     uv run python scripts/prepare_tinker_data.py \
         --results-dir results/ \
         --output data/tinker_sft.jsonl
@@ -20,17 +20,6 @@ Usage:
     # Filter by environment
     uv run python scripts/prepare_tinker_data.py --results-dir results/ --env hyperbolic
 
-Best models per environment (from 1,546 valid runs):
-    hyperbolic_temporal_discount: GLM-4.7 (z=-1.065)
-    death_process: GPT-5.1-Codex-mini (z=-1.030)
-    peregrines: MiniMax-M2.1 (z=-0.662)
-    morals: Kimi-for-coding (z=-0.615)
-    lotka_volterra: GPT-5.1-Codex-mini (z=-0.449)
-    irt: Qwen3-32B (z=-0.360)
-    location_finding: Qwen3-32B (z=-0.144)
-    dugongs: GPT-5.1-Codex-mini (z=-0.095)
-    survival: DeepSeek (z=-0.092)
-    emotion: GPT-4o (z=+0.781)
 """
 
 import argparse

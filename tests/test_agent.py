@@ -1,9 +1,11 @@
 """Tests for LMExperimenter agent."""
 
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from omegaconf import OmegaConf
 
 from boxing_gym.agents.agent import (
     LMExperimenter,
@@ -317,3 +319,35 @@ class TestWeavePayload:
             result=None,
         )
         assert payload["model"] == "gpt-4o"
+
+
+@pytest.mark.parametrize("config_name", ["kimi-k2", "kimi-k2-thinking"])
+@pytest.mark.parametrize("custom_headers", [None, {"User-Agent": "boxinggym-eval"}])
+def test_kimi_requests_use_library_headers_unless_explicitly_supplied(
+    monkeypatch, config_name, custom_headers
+):
+    monkeypatch.setenv("BOXINGGYM_FAKE_LLM", "0")
+    monkeypatch.delenv("MOONSHOT_API_KEY", raising=False)
+    config_path = Path(__file__).resolve().parents[1] / "conf/llms" / f"{config_name}.yaml"
+    config = OmegaConf.to_container(OmegaConf.load(config_path), resolve=True)
+    sent = {}
+
+    def completion(**kwargs):
+        sent.update(kwargs)
+        return {"choices": [{"message": {"content": "Example reply"}}]}
+
+    monkeypatch.setattr("boxing_gym.agents.agent.litellm.completion", completion)
+    agent = LMExperimenter(
+        model_name=config["model_name"],
+        api_base=config["api_base"],
+        custom_llm_provider=config["custom_llm_provider"],
+        extra_headers=custom_headers if custom_headers is not None else config.get("extra_headers"),
+    )
+
+    assert agent.prompt_llm("An experimental prediction") == "Example reply"
+    assert sent["api_base"] == "https://api.kimi.com/coding/v1"
+    assert sent["model"] == "kimi-for-coding"
+    if custom_headers is None:
+        assert "extra_headers" not in sent
+    else:
+        assert sent["extra_headers"] == custom_headers

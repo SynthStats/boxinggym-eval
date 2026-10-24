@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""Analyze WandB sweep results or local JSON results.
+"""Analyse WandB sweep results or local JSON results.
 
 Uses Random Forest feature importance (like WandB's Parameter Importance panel)
 to understand which hyperparameters most affect performance.
 
 Usage:
-    # Analyze WandB sweep with Rich CLI (default)
+    # Analyse WandB sweep with Rich CLI (default)
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID
 
-    # Analyze LOCAL results (from results/ directory)
+    # Analyse LOCAL results (from results/ directory)
     uv run python scripts/analyze_sweep_results.py --local
     uv run python scripts/analyze_sweep_results.py --local --results-dir ./my_results
 
-    # Analyze multiple sweeps
+    # Analyse multiple sweeps
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID OTHER_SWEEP_ID
 
     # Launch interactive TUI dashboard
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID --tui
     uv run python scripts/analyze_sweep_results.py --local --tui
 
-    # Non-interactive TUI (specific views, no prompts - suitable for AI agents)
+    # Non-interactive terminal views
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID --view model-rankings
     uv run python scripts/analyze_sweep_results.py --local --view local-summary
     uv run python scripts/analyze_sweep_results.py --local --view all
@@ -40,7 +40,7 @@ Usage:
     # Filter catastrophic runs (default: |z| > 100 filtered out)
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID --z-threshold 50
 
-    # Exclude specific broken environments
+    # Exclude selected environments
     uv run python scripts/analyze_sweep_results.py --sweep-id YOUR_SWEEP_ID --exclude-envs peregrines_direct location_finding_direct
 
     # Per-environment analysis: parameter importance for a single env
@@ -299,7 +299,7 @@ def _z_style(z: float) -> str:
 
 
 def print_analysis_report_rich(df: pd.DataFrame, sweep_id: str):
-    """Print a comprehensive analysis report with Rich formatting."""
+    """Print an analysis report with Rich formatting."""
     target = "metric/eval/z_mean"
 
     # Title panel
@@ -459,13 +459,13 @@ def prepare_analysis_payload(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Analyze WandB sweep results or local JSON results"
+        description="Analyse WandB sweep results or local JSON results"
     )
     parser.add_argument(
-        "--sweep-id", nargs="+", help="Sweep ID(s) to analyze (required unless --local)"
+        "--sweep-id", nargs="+", help="Sweep ID(s) to analyse (required unless --local)"
     )
     parser.add_argument(
-        "--local", action="store_true", help="Analyze local results from results/ directory"
+        "--local", action="store_true", help="Analyse local results from results/ directory"
     )
     parser.add_argument(
         "--results-dir",
@@ -477,7 +477,7 @@ def main():
         "--project", default=os.environ.get("WANDB_PROJECT", ""), help="WandB project"
     )
     parser.add_argument("--output", help="Output CSV file path")
-    parser.add_argument("--metric", default="metric/eval/z_mean", help="Target metric to analyze")
+    parser.add_argument("--metric", default="metric/eval/z_mean", help="Target metric to analyse")
     parser.add_argument("--web", action="store_true", help="Launch interactive web dashboard")
     parser.add_argument("--tui", action="store_true", help="Launch interactive terminal dashboard")
     parser.add_argument(
@@ -521,7 +521,7 @@ def main():
         "--filter-env",
         type=str,
         default=None,
-        help="Analyze only this environment. Useful for per-env parameter importance. "
+        help="Analyse only this environment. Useful for per-env parameter importance. "
         "Example: --filter-env hyperbolic_direct",
     )
     parser.add_argument(

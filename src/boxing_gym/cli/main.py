@@ -17,7 +17,7 @@ console = Console()
 def main():
     """BoxingGym benchmark analysis CLI.
 
-    Analyze LLM performance on scientific discovery tasks.
+    Analyse LLM performance on scientific discovery tasks.
 
     Quick start:
 

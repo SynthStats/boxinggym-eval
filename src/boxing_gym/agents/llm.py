@@ -113,7 +113,7 @@ class LLMAgent(BaseAgent):
         try:
             response = await self.get_response(messages=messages, n=n, temperature=temperature)
         except Exception as e:
-            # Be robust to transient provider / rate-limit failures so Box's loop sweeps don't crash.
+            # Retry transient provider and rate-limit failures.
             try:
                 if self.logger:
                     self.logger.warning(f"LLM call failed in Box loop agent: {e}")

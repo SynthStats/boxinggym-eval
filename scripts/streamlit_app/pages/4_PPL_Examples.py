@@ -1,7 +1,7 @@
 """PPL Examples - View generated PyMC models from Box's Loop.
 
 Shows the best probabilistic programs generated during use_ppl=True runs,
-with detailed visualizations, diagnostics, and LLM trajectory data.
+with detailed visualisations, diagnostics, and LLM trajectory data.
 """
 
 import sys
@@ -80,7 +80,7 @@ def safe_get_config_value(
 
 @st.cache_data(ttl=300, show_spinner="Loading PPL runs from W&B...")
 def load_ppl_runs(entity: str, project: str, max_runs: int = 50, fetch_details: bool = True):
-    """Load runs with use_ppl=True and extract comprehensive PPL data."""
+    """Load runs with use_ppl=True and extract PPL data."""
     import wandb
 
     api = wandb.Api(timeout=120)
@@ -342,15 +342,15 @@ else:
         with c4:
             if len(df) > 0:
                 best_loo = df["best_loo"].dropna().min()
-                st.metric("Best LOO", f"{best_loo:.2f}" if pd.notna(best_loo) else "—")
+                st.metric("Best LOO", f"{best_loo:.2f}" if pd.notna(best_loo) else "-")
             else:
-                st.metric("Best LOO", "—")
+                st.metric("Best LOO", "-")
         with c5:
             if len(df) > 0:
                 total_progs = df["num_programs"].sum()
                 st.metric("Programs Generated", f"{int(total_progs)}")
             else:
-                st.metric("Programs Generated", "—")
+                st.metric("Programs Generated", "-")
 
         st.divider()
 
@@ -358,7 +358,7 @@ else:
         tab1, tab2, tab3, tab4 = st.tabs(
             [
                 "📊 Best Models",
-                "📈 Visualizations",
+                "📈 Visualisations",
                 "🔬 Diagnostics",
                 "🔍 Detailed View",
             ]
@@ -381,7 +381,7 @@ else:
                             f"{row['best_loo']:.2f}" if pd.notna(row.get("best_loo")) else "N/A"
                         )
                         with st.expander(
-                            f"**{row['env']}** — {row['model']} (z={row['z_mean']:.2f}, LOO={loo_str})",
+                            f"**{row['env']}** - {row['model']} (z={row['z_mean']:.2f}, LOO={loo_str})",
                             expanded=False,
                         ):
                             col1, col2 = st.columns([2, 1])
@@ -397,7 +397,7 @@ else:
                                 st.markdown(f"**Budget:** {row['budget']}")
                                 st.markdown(f"**Seed:** {row['seed']}")
                                 st.markdown(
-                                    f"**Include Prior:** {'✓' if row['include_prior'] else '—'}"
+                                    f"**Include Prior:** {'✓' if row['include_prior'] else '-'}"
                                 )
 
                                 st.markdown("---")
@@ -455,7 +455,7 @@ else:
                     st.info("No runs with valid z_mean scores found.")
 
         with tab2:
-            st.subheader("Performance Visualizations")
+            st.subheader("Performance Visualisations")
 
             if len(df) > 0:
                 col1, col2 = st.columns(2)
@@ -465,7 +465,7 @@ else:
                     if loo_fig:
                         st.plotly_chart(loo_fig, use_container_width=True)
                     else:
-                        st.info("No LOO data available for visualization.")
+                        st.info("No LOO data available for visualisation.")
 
                 with col2:
                     perf_fig = build_model_performance_chart(df)
@@ -491,7 +491,7 @@ else:
                 else:
                     st.info("Not enough data for heatmap.")
             else:
-                st.info("No data to visualize.")
+                st.info("No data to visualise.")
 
         with tab3:
             st.subheader("MCMC Diagnostics Overview")
@@ -532,7 +532,7 @@ else:
                                 "best_min_ess": "{:.0f}",
                                 "best_divergences": "{:.0f}",
                             },
-                            na_rep="—",
+                            na_rep="-",
                         ),
                         use_container_width=True,
                         hide_index=True,
@@ -540,7 +540,7 @@ else:
                 else:
                     st.info("No diagnostic data available.")
             else:
-                st.info("No data to analyze.")
+                st.info("No data to analyse.")
 
         with tab4:
             st.subheader("Detailed Run Exploration")
@@ -688,7 +688,7 @@ else:
                         "best_loo": "{:.2f}",
                         "best_waic": "{:.2f}",
                     },
-                    na_rep="—",
+                    na_rep="-",
                 ),
                 use_container_width=True,
                 hide_index=True,

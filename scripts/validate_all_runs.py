@@ -2,9 +2,9 @@
 """Multi-layer validation of all BoxingGym result files.
 
 Applies validation layers L0-L5 and generates reports:
-  .scratch/validation_quarantine.json  - Auto-quarantine (L0/L1/L1.5/L2)
-  .scratch/validation_review.json      - Manual review needed (L3/L4)
-  .scratch/validation_summary.json     - Statistics by env/model
+  validation_reports/validation_quarantine.json  - Auto-quarantine (L0/L1/L1.5/L2)
+  validation_reports/validation_review.json      - Manual review needed (L3/L4)
+  validation_reports/validation_summary.json     - Statistics by env/model
 
 Usage:
     uv run python scripts/validate_all_runs.py
@@ -142,7 +142,7 @@ def main():
         "--quarantine", action="store_true", help="Auto-quarantine L0/L1/L1.5/L2 failures"
     )
     parser.add_argument(
-        "--output-dir", type=str, default=".scratch", help="Directory for validation reports"
+        "--output-dir", type=str, default="validation_reports", help="Directory for validation reports"
     )
     args = parser.parse_args()
 

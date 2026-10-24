@@ -90,13 +90,13 @@ class SeedStabilityView(BaseView):
         max_stderr = df_sorted[stderr_col].max() if len(df_sorted) > 0 else 1
 
         for _, row in df_sorted.iterrows():
-            env = row.get("config/envs", row.get("env", "—"))
-            model = row.get("config/llms", row.get("model", "—"))
+            env = row.get("config/envs", row.get("env", "-"))
+            model = row.get("config/llms", row.get("model", "-"))
             z_mean = row.get(self.metric, row.get("z_mean", np.nan))
             z_stderr = row[stderr_col]
 
-            z_str = colored_z(z_mean) if not pd.isna(z_mean) else "—"
-            stderr_str = f"{z_stderr:.4f}" if not pd.isna(z_stderr) else "—"
+            z_str = colored_z(z_mean) if not pd.isna(z_mean) else "-"
+            stderr_str = f"{z_stderr:.4f}" if not pd.isna(z_stderr) else "-"
             bar = horizontal_bar(z_stderr, max_stderr, width=12) if not pd.isna(z_stderr) else ""
 
             table.add_row(str(env), str(model), z_str, stderr_str, bar)

@@ -133,13 +133,13 @@ st.subheader("Summary")
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
-    st.metric("Sweep Runs", len(sweep_df) if len(sweep_df) > 0 else "—")
+    st.metric("Sweep Runs", len(sweep_df) if len(sweep_df) > 0 else "-")
 
 with c2:
     if len(sweep_df) > 0:
         st.metric("Sweep Models", sweep_df["model"].nunique())
     else:
-        st.metric("Sweep Models", "—")
+        st.metric("Sweep Models", "-")
 
 with c3:
     # Count envs where user beats GPT-4o
@@ -162,7 +162,7 @@ with c3:
                 beat_gpt += 1
         st.metric("Beat GPT-4o", f"{beat_gpt}")
     else:
-        st.metric("Beat GPT-4o", "—")
+        st.metric("Beat GPT-4o", "-")
 
 with c4:
     # Count envs where user beats BOX
@@ -185,7 +185,7 @@ with c4:
                 beat_box += 1
         st.metric("Beat BOX", f"{beat_box}")
     else:
-        st.metric("Beat BOX", "—")
+        st.metric("Beat BOX", "-")
 
 st.divider()
 
@@ -291,8 +291,8 @@ for _, row in paper_keys.iterrows():
         row_data = {
             "Environment": env,
             "Goal": goal,
-            "Prior": "✓" if prior else "—",
-            "PPL": "✓" if use_ppl else "—",
+            "Prior": "✓" if prior else "-",
+            "PPL": "✓" if use_ppl else "-",
             "Budget": budget,
             "GPT-4o": gpt_val,
             "BOX": box_val,
@@ -365,7 +365,7 @@ for model in sweep_models:
 styled = comparison_df.style.apply(
     style_vs_gpt,
     axis=1,
-).format(format_dict, na_rep="—")
+).format(format_dict, na_rep="-")
 
 st.dataframe(
     styled,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analyze OED vs Discovery performance breakdown.
+"""Analyse OED vs Discovery performance breakdown.
 
 Compares:
 - exp=oed vs exp=discovery

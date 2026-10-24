@@ -31,7 +31,7 @@ class LocalSummaryView(BaseView):
         bad_seeds = (df["summary/n_seeds"].fillna(0) <= 0).sum()
         if bad_seeds > 0:
             self.console.print(
-                f"[yellow]⚠ {bad_seeds} runs with n_seeds≤0 — treating as 1[/yellow]"
+                f"[yellow]⚠ {bad_seeds} runs with n_seeds≤0 - treating as 1[/yellow]"
             )
         df["summary/n_seeds"] = df["summary/n_seeds"].fillna(1).clip(lower=1).astype(int)
 

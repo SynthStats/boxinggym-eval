@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Tinker RL Training for BoxingGym (GRPO-style)
+Tinker RL training for BoxingGym (GRPO-style)
 
-RL fine-tuning using BoxingGym evaluation as reward. Uses GRPO with importance
-sampling. Generates fresh questions each batch to prevent memorization, tracks
-question uniqueness via hashing, and uses held-out validation for early stopping.
+RL fine-tuning uses BoxingGym evaluation as the reward, with GRPO and importance
+sampling. Each batch uses fresh questions; the script records question hashes
+and evaluates held-out questions for early stopping.
 
 Usage:
     uv run python scripts/tinker_rl.py --checkpoint /tmp/boxing-gym-sft/checkpoint-final
-    uv run python scripts/tinker_rl.py --max-batches 5 --group-size 4  # smoke test
+    uv run python scripts/tinker_rl.py --max-batches 5 --group-size 4
 
 Requires TINKER_API_KEY in .env and an SFT checkpoint from tinker_sft.py.
 """

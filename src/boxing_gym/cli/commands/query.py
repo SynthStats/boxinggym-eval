@@ -70,7 +70,7 @@ def run_query(
         console.print("[yellow]No data after filtering.[/yellow]")
         return
 
-    console.print(f"[dim]Analyzing {len(df):,} runs...[/dim]\n")
+    console.print(f"[dim]Analysing {len(df):,} runs...[/dim]\n")
 
     # dispatch to query
     if query_name == "all":

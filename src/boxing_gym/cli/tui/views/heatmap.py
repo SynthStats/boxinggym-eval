@@ -75,7 +75,7 @@ class HeatmapView(BaseView):
             for model in models:
                 val = row[model]
                 if pd.isna(val):
-                    cells.append("[dim]—[/dim]")
+                    cells.append("[dim]-[/dim]")
                 else:
                     clamped = max(-99.0, min(99.0, val))
                     color = _heat_color(val)

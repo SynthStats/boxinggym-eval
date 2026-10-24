@@ -114,4 +114,4 @@ def test_norm_static_matches_goal_classes():
             f"{env_name}: Goal.norm_mu={goal.norm_mu} != NORM_STATIC mu={static_mu}"
         )
         # note: this test will fail after updating env files but before updating NORM_STATIC
-        # that's intentional — it catches desync between the two sources
+        # that's intentional - it catches desync between the two sources

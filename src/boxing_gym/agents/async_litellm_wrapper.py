@@ -52,7 +52,7 @@ class AsyncLiteLLM:
     ):
         self.model_name = model_name
 
-        # robust coercion: handle strings, floats, booleans
+        # Coerce strings, floats and booleans
         if max_tokens is None or isinstance(max_tokens, bool):
             max_tokens = 4096
         else:

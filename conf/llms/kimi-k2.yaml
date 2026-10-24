@@ -21,9 +21,6 @@ api_key: ${oc.env:MOONSHOT_API_KEY,null}
 # OpenAI-compatible endpoint
 custom_llm_provider: "openai"
 
-extra_headers:
-  User-Agent: "claude-code/1.0"
-
 supports_system_message: true
 supports_thinking: false
 supports_streaming: true
