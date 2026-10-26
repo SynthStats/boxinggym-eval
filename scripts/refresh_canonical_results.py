@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from boxing_gym.agents.results_io import get_model_display_name
@@ -28,6 +29,22 @@ DEFAULT_HF_README = Path("HF_SPACE_README.md")
 CANONICAL_PARQUET = "canonical_runs.parquet"
 CANONICAL_METADATA = "canonical_metadata.json"
 CANONICAL_METRICS = "canonical_metrics.json"
+MATCHED_MODELS = (
+    "anthropic/glm-4.7",
+    "bedrock/qwen.qwen3-32b-v1:0",
+    "deepseek/deepseek-chat",
+    "gpt-4o",
+    "gpt-5.1-codex-mini",
+    "kimi-for-coding",
+    "openai/MiniMax-M2.1",
+)
+TASK_FIELDS = ["env", "experiment_type", "budget", "use_ppl", "include_prior", "goal"]
+PROTOCOL_FIELDS = [
+    "num_evals", "env_params", "com_limit", "effective_check_eig", "requested_budgets",
+    "goal_original", "norm_factors", "temperature", "configured_seeds",
+    "aggregation_mode", "aggregation_n_seeds", "observed_seed_ids",
+]
+MATCHED_FIELDS = TASK_FIELDS + PROTOCOL_FIELDS
 
 
 def utc_now_iso() -> str:
@@ -197,15 +214,59 @@ def compute_key_findings(
 
 
 def compute_metrics(df: pd.DataFrame, *, n_bootstrap: int = 10_000) -> dict[str, Any]:
+    matched = compute_matched_comparison(df)
     leaderboard = compute_leaderboard(df, n_bootstrap=n_bootstrap)
     champions_model_only = compute_champions_model_only(df)
     champions_model_plus_ppl = compute_champions_model_plus_ppl(df)
     key_findings = compute_key_findings(leaderboard, champions_model_only)
     return {
+        "matched_comparison": matched,
         "leaderboard": leaderboard,
         "champions_model_only": champions_model_only,
         "champions_model_plus_ppl": champions_model_plus_ppl,
         "key_findings": key_findings,
+    }
+
+
+def compute_matched_comparison(df: pd.DataFrame) -> dict[str, Any]:
+    """Compare the seven snapshot models on shared task-and-replication cells."""
+    missing = sorted(set(MATCHED_FIELDS + ["model", "z_mean"]) - set(df.columns))
+    if missing:
+        raise ValueError(f"Matched comparison missing fields: {', '.join(missing)}")
+    selected = df.loc[df.model.isin(MATCHED_MODELS) & np.isfinite(df.z_mean)]
+    if selected[MATCHED_FIELDS].isna().any().any():
+        raise ValueError("Matched protocol values must be recorded; use JSON null for absent settings")
+    means = selected.groupby(MATCHED_FIELDS + ["model"]).z_mean.mean().unstack("model")
+    means = means.reindex(columns=MATCHED_MODELS).dropna()
+    if means.empty:
+        raise ValueError("No shared finite cells for the seven-model cohort")
+    counts = selected.groupby(MATCHED_FIELDS + ["model"]).size().unstack("model", fill_value=0)
+    counts = counts.reindex(index=means.index, columns=MATCHED_MODELS)
+    environments = means.groupby(level="env").mean()
+    matrix = environments.to_numpy()
+    point = matrix.mean(axis=0)
+    draws = np.random.default_rng(20261026).integers(0, len(environments), size=(200_000, len(environments)))
+    bounds = np.quantile(matrix[draws].mean(axis=1), [0.025, 0.975], axis=0)
+    models = [
+        {
+            "model_raw": model,
+            "model_display": get_model_display_name(model),
+            "mean_z": float(point[i]),
+            "ci_low": float(bounds[0, i]),
+            "ci_high": float(bounds[1, i]),
+            "n": int(counts[model].sum()),
+        }
+        for i, model in enumerate(MATCHED_MODELS)
+    ]
+    return {
+        "cell_fields": MATCHED_FIELDS,
+        "n_cells": len(means),
+        "n_environments": len(environments),
+        "n_rows": int(counts.to_numpy().sum()),
+        "budgets": sorted(int(budget) for budget in means.index.get_level_values("budget").unique()),
+        "bootstrap_draws": 200_000,
+        "bootstrap_seed": 20261026,
+        "models": sorted(models, key=lambda row: row["mean_z"]),
     }
 
 
@@ -267,14 +328,20 @@ def render_metadata_block(metadata: dict[str, Any]) -> str:
 
 
 def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any]) -> str:
+    matched = metrics["matched_comparison"]
+    budget_label = "budget" if len(matched["budgets"]) == 1 else "budgets"
+    budgets = ", ".join(str(value) for value in matched["budgets"])
+    pooled = {row["model_raw"]: row for row in metrics["leaderboard"]}
     leaderboard_rows = []
-    for row in sorted(metrics.get("leaderboard", []), key=lambda r: r["model_display"]):
+    for row in matched["models"]:
         leaderboard_rows.append(
             [
                 row["model_display"],
                 f"{row['mean_z']:+.3f}",
                 f"[{row['ci_low']:+.3f}, {row['ci_high']:+.3f}]",
                 str(row["n"]),
+                f"{pooled[row['model_raw']]['mean_z']:+.3f}",
+                str(pooled[row["model_raw"]]["n"]),
             ]
         )
 
@@ -301,10 +368,10 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
     findings = metrics.get("key_findings", {})
 
     parts = [
-        "### Mean scores in this snapshot",
+        "### Matched and pooled scores in this snapshot",
         "",
         _rows_to_markdown_table(
-            ["Model", "Mean z", "95% bootstrap confidence interval", "Runs"],
+            ["Model", "Matched mean z", "95% environment-cluster interval", "Matched rows", "Pooled mean z", "Pooled rows"],
             leaderboard_rows,
         ),
         "",
@@ -339,7 +406,10 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Result", "Definition"],
             [
+                ["Matched comparison", f"{matched['n_cells']} shared cells across {matched['n_environments']} environments; {budget_label} {budgets}"],
                 ["Pooled mean score", "Mean standardised prediction error across each model's filtered runs; lower is better"],
+                ["Matched cell", "Same environment, mode, budget, PyMC setting, prior, goal, evaluation size, simulator parameters, communication limit, information-gain setting, budget schedule, original goal, normalisation, temperature, configured and observed seed lists, aggregation mode and seed count; finite scores from all seven models"],
+                ["Matched mean score", "Mean over records within each cell, cells within each environment, then environments with equal weight"],
                 [
                     "Model within environment",
                     "Mean over all runs for each model within an environment, pooling PyMC settings",
@@ -356,7 +426,7 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Method", "Definition"],
             [
-                ["Bootstrap confidence interval", "95% confidence intervals from resampling"],
+                ["Environment-cluster bootstrap", "95% percentile intervals from 200,000 resamples of exchangeable environments; seed 20261026"],
             ],
         ),
         "",
@@ -420,25 +490,45 @@ def refresh_canonical_artifacts(
     snapshot_version: str,
     n_bootstrap: int,
     dry_run: bool,
+    protocol_input: Path | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if not input_path.exists():
         raise FileNotFoundError(f"Input parquet not found: {input_path}")
 
     raw_df = pd.read_parquet(input_path)
+    if protocol_input is not None:
+        protocol = pd.read_csv(protocol_input, dtype=str, keep_default_na=False)
+        required = ["run_id"] + PROTOCOL_FIELDS
+        missing = sorted(set(required) - set(protocol.columns))
+        if missing:
+            raise ValueError(f"Protocol input missing fields: {', '.join(missing)}")
+        if set(PROTOCOL_FIELDS) & set(raw_df.columns):
+            raise ValueError("Input snapshot already contains protocol fields")
+        raw_df = raw_df.merge(protocol[required], on="run_id", how="left", validate="many_to_one")
     filtered_df, stats = apply_canonical_filters(
         raw_df,
         min_budget=min_budget,
         exclude_outliers=exclude_outliers,
     )
     metrics = compute_metrics(filtered_df, n_bootstrap=n_bootstrap)
-    metadata = build_metadata(
-        source_path=input_path,
-        snapshot_path=output_dir / CANONICAL_PARQUET,
-        stats=stats,
-        min_budget=min_budget,
-        exclude_outliers=exclude_outliers,
-        snapshot_version=snapshot_version,
-    )
+    snapshot_path = output_dir / CANONICAL_PARQUET
+    if input_path.resolve() == snapshot_path.resolve():
+        metadata = json.loads((output_dir / CANONICAL_METADATA).read_text())
+        if metadata["filters"] != {
+            "min_budget": min_budget,
+            "exclude_outliers": exclude_outliers,
+        }:
+            raise ValueError("Use the original source data to change snapshot filters")
+        metadata.update(generated_at_utc=utc_now_iso(), snapshot_version=snapshot_version)
+    else:
+        metadata = build_metadata(
+            source_path=input_path,
+            snapshot_path=snapshot_path,
+            stats=stats,
+            min_budget=min_budget,
+            exclude_outliers=exclude_outliers,
+            snapshot_version=snapshot_version,
+        )
 
     if dry_run:
         return metrics, metadata
@@ -472,6 +562,7 @@ def parse_args() -> argparse.Namespace:
         description="Refresh canonical snapshot and generated result docs."
     )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Input parquet file.")
+    parser.add_argument("--protocol-input", type=Path, help="CSV with run_id and recorded matching protocol fields.")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -510,12 +601,14 @@ def main() -> int:
         snapshot_version=args.snapshot_version,
         n_bootstrap=args.n_bootstrap,
         dry_run=args.dry_run,
+        protocol_input=args.protocol_input,
     )
     print(
         f"Canonical snapshot prepared: {metadata['rows_after_filters']:,} runs, "
         f"{metadata['models_after_filters']} models, {metadata['envs_after_filters']} envs"
     )
-    print(f"Top model: {metrics.get('key_findings', {}).get('best_model', 'n/a')}")
+    matched = metrics["matched_comparison"]
+    print(f"Matched comparison: {matched['n_cells']} cells, {matched['n_rows']:,} rows")
     if args.dry_run:
         print("Dry run complete. No files written.")
     else:

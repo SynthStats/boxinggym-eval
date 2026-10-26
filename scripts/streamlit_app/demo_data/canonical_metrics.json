@@ -218,5 +218,93 @@
       "rank": 7,
       "significant_vs_best": false
     }
-  ]
+  ],
+  "matched_comparison": {
+    "bootstrap_draws": 200000,
+    "bootstrap_seed": 20261026,
+    "budgets": [
+      10
+    ],
+    "cell_fields": [
+      "env",
+      "experiment_type",
+      "budget",
+      "use_ppl",
+      "include_prior",
+      "goal",
+      "num_evals",
+      "env_params",
+      "com_limit",
+      "effective_check_eig",
+      "requested_budgets",
+      "goal_original",
+      "norm_factors",
+      "temperature",
+      "configured_seeds",
+      "aggregation_mode",
+      "aggregation_n_seeds",
+      "observed_seed_ids"
+    ],
+    "models": [
+      {
+        "ci_high": 0.7595545505039333,
+        "ci_low": -0.1939735893323693,
+        "mean_z": 0.24506335559927783,
+        "model_display": "DeepSeek-V3.2",
+        "model_raw": "deepseek/deepseek-chat",
+        "n": 295
+      },
+      {
+        "ci_high": 0.6482521147666814,
+        "ci_low": -0.1262803324021819,
+        "mean_z": 0.2584182018431781,
+        "model_display": "GPT-4o",
+        "model_raw": "gpt-4o",
+        "n": 157
+      },
+      {
+        "ci_high": 0.6938031051454763,
+        "ci_low": -0.12808756453606857,
+        "mean_z": 0.26150908353981595,
+        "model_display": "MiniMax-M2.1",
+        "model_raw": "openai/MiniMax-M2.1",
+        "n": 273
+      },
+      {
+        "ci_high": 0.7714879451240695,
+        "ci_low": -0.15789039126029913,
+        "mean_z": 0.27925937679641766,
+        "model_display": "GPT-5.1-Codex-Mini",
+        "model_raw": "gpt-5.1-codex-mini",
+        "n": 174
+      },
+      {
+        "ci_high": 0.8628698899029607,
+        "ci_low": -0.10524326156536748,
+        "mean_z": 0.35162719886516985,
+        "model_display": "Kimi-K2",
+        "model_raw": "kimi-for-coding",
+        "n": 271
+      },
+      {
+        "ci_high": 1.0609589393159136,
+        "ci_low": -0.1265959611134893,
+        "mean_z": 0.40504055473015865,
+        "model_display": "GLM-4.7",
+        "model_raw": "anthropic/glm-4.7",
+        "n": 260
+      },
+      {
+        "ci_high": 0.9931293907140877,
+        "ci_low": 0.03967007312324179,
+        "mean_z": 0.5062621031704847,
+        "model_display": "Qwen3-32B",
+        "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
+        "n": 165
+      }
+    ],
+    "n_cells": 20,
+    "n_environments": 10,
+    "n_rows": 1595
+  }
 }

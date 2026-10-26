@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from scripts.refresh_canonical_results import (
+    MATCHED_MODELS,
+    PROTOCOL_FIELDS,
     apply_canonical_filters,
     compute_champions_model_only,
     compute_champions_model_plus_ppl,
@@ -124,13 +126,20 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         "filters": {"min_budget": 10, "exclude_outliers": True},
     }
 
+    for row in metrics["leaderboard"]:
+        row["model_raw"] = row["model_display"]
+    metrics["matched_comparison"] = {
+        "budgets": [10],
+        "n_cells": 1,
+        "n_environments": 1,
+        "models": metrics["leaderboard"].copy(),
+    }
     metrics["leaderboard"].reverse()
     results = render_readme_results_block(metrics, metadata)
     snapshot = render_metadata_block(metadata)
 
-    assert "### Mean scores in this snapshot" in results
-    assert "95% bootstrap confidence interval" in results
-    assert "| Model | Mean z | 95% bootstrap confidence interval | Runs |" in results
+    assert "### Matched and pooled scores in this snapshot" in results
+    assert "| Model | Matched mean z | 95% environment-cluster interval | Matched rows | Pooled mean z | Pooled rows |" in results
     assert "Rank" not in results
     assert "rank 1" not in results
     assert "Reference" not in results
@@ -147,16 +156,16 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         ), block
 
     expected_rows = [
-        "| Model A | +0.100 | [+0.000, +0.200] | 10 |",
-        "| Model B | +0.300 | [+0.200, +0.400] | 12 |",
-        "| Model C | +0.500 | [+0.400, +0.600] | 1 |",
+        "| Model A | +0.100 | [+0.000, +0.200] | 10 | +0.100 | 10 |",
+        "| Model B | +0.300 | [+0.200, +0.400] | 12 | +0.300 | 12 |",
+        "| Model C | +0.500 | [+0.400, +0.600] | 1 | +0.500 | 1 |",
         "| e1 | Model A | -0.100 | ✓ Beats baseline |",
         "| e1 | Model A | true | -0.200 | ✓ Beats baseline |",
         "| Environments beating baseline (model only) | 1/1 |",
         "| Pooled mean score | Mean standardised prediction error across each model's filtered runs; lower is better |",
         "| Model within environment | Mean over all runs for each model within an environment, pooling PyMC settings |",
         "| Model and PyMC setting | Mean over each `(model, use_ppl)` combination within an environment; `use_ppl=true` adds PyMC model refinement (Box's Loop) |",
-        "| Bootstrap confidence interval | 95% confidence intervals from resampling |",
+        "| Environment-cluster bootstrap | 95% percentile intervals from 200,000 resamples of exchangeable environments; seed 20261026 |",
         "| Snapshot version | `v1` |",
     ]
     assert "Lowest pooled mean" not in results
@@ -253,8 +262,12 @@ def test_refresh_links_to_the_written_snapshot(tmp_path: Path):
     source = tmp_path / "input.parquet"
     pd.DataFrame(
         [
-            {"model": "m1", "env": "e1", "budget": 10, "use_ppl": False, "z_mean": z}
-            for z in (-0.2, -0.1, 0.0)
+            {
+                "model": model, "env": "e1", "budget": 10, "use_ppl": False,
+                "z_mean": z, "experiment_type": "discovery", "include_prior": True,
+                "goal": "prediction", **dict.fromkeys(PROTOCOL_FIELDS, "null"),
+            }
+            for model in MATCHED_MODELS for z in (-0.2, -0.1, 0.0)
         ]
     ).to_parquet(source, index=False)
     readme = tmp_path / "README.md"
@@ -284,3 +297,59 @@ def test_refresh_links_to_the_written_snapshot(tmp_path: Path):
     assert metadata["snapshot_path"] == str(expected)
     for document in (readme, hf_readme):
         assert f"| Bundled snapshot | `{expected}` |" in document.read_text()
+
+
+@pytest.mark.parametrize("enrich_protocol", [False, True])
+def test_refresh_bundled_snapshot_preserves_original_provenance(tmp_path: Path, enrich_protocol):
+    source = tmp_path / "canonical_runs.parquet"
+    frame = pd.DataFrame(
+        [
+            {
+                "run_id": str(i), "model": model, "env": "e1", "budget": 10,
+                "use_ppl": False, "z_mean": 0.1, "experiment_type": "discovery",
+                "include_prior": True, "goal": "prediction",
+                **dict.fromkeys(PROTOCOL_FIELDS, "null"),
+            }
+            for i, model in enumerate(MATCHED_MODELS)
+        ]
+    )
+    protocol_input = None
+    if enrich_protocol:
+        protocol_input = tmp_path / "protocol.csv"
+        frame[["run_id", *PROTOCOL_FIELDS]].to_csv(protocol_input, index=False)
+        frame = frame.drop(columns=PROTOCOL_FIELDS)
+    frame.to_parquet(source, index=False)
+    original = {
+        "generated_at_utc": "2026-10-24T04:57:05Z",
+        "snapshot_version": "2026-10-24",
+        "source_path": ".boxing-gym-cache/runs.parquet",
+        "source_git_commit": "c43ed1ad383b5f8f14a7d4cbe7b6e1d2cf800977",
+        "snapshot_path": str(source),
+        "filters": {"min_budget": 10, "exclude_outliers": True},
+        "rows_total_before_filters": 5710,
+        "rows_after_filters": 7,
+        "models_after_filters": 7,
+        "envs_after_filters": 1,
+    }
+    metadata_path = tmp_path / "canonical_metadata.json"
+    metadata_path.write_text(json.dumps(original))
+
+    _, metadata = refresh_canonical_artifacts(
+        input_path=source,
+        output_dir=tmp_path,
+        readme_path=tmp_path / "README.md",
+        hf_readme_path=tmp_path / "HF_SPACE_README.md",
+        min_budget=10,
+        exclude_outliers=True,
+        snapshot_version="2026-10-26",
+        n_bootstrap=10,
+        dry_run=False,
+        protocol_input=protocol_input,
+    )
+
+    written = json.loads(metadata_path.read_text())
+    assert written == metadata
+    assert written["generated_at_utc"] != original["generated_at_utc"]
+    assert written["snapshot_version"] == "2026-10-26"
+    for key in original.keys() - {"generated_at_utc", "snapshot_version"}:
+        assert written[key] == original[key], key

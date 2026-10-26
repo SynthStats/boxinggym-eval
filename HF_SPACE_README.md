@@ -19,7 +19,7 @@ BoxingGym agents choose experiments, such as offering a simulated person money n
 
 | Snapshot | Value |
 | --- | --- |
-| Generated | 2026-10-24T04:57:05Z |
+| Generated | 2026-10-26T08:05:27Z |
 | Bundled snapshot | `scripts/streamlit_app/demo_data/canonical_runs.parquet` |
 | Filters | `budget >= 10`, `exclude_outliers=true` |
 | Coverage | 1,948 runs across 7 models and 10 environments |
