@@ -124,12 +124,18 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         "filters": {"min_budget": 10, "exclude_outliers": True},
     }
 
+    metrics["leaderboard"].reverse()
     results = render_readme_results_block(metrics, metadata)
     snapshot = render_metadata_block(metadata)
 
     assert "### Mean scores in this snapshot" in results
     assert "95% bootstrap confidence interval" in results
-    assert "Adjusted p-value vs rank 1" in results
+    assert "| Model | Mean z | 95% bootstrap confidence interval | Runs |" in results
+    assert "Rank" not in results
+    assert "rank 1" not in results
+    assert "Reference" not in results
+    assert "Adjusted p-value" not in results
+    assert results.index("| Model A |") < results.index("| Model B |") < results.index("| Model C |")
     assert "### Lowest mean score in each environment" in results
     assert "### Lowest mean score by model and PyMC setting" in results
     assert "### Statistical methods" in results
@@ -141,25 +147,21 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
         ), block
 
     expected_rows = [
-        "| 1 | Model A | +0.100 | [+0.000, +0.200] | Reference | 10 |",
-        "| 3 | Model C | +0.500 | [+0.400, +0.600] | n/a | 1 |",
+        "| Model A | +0.100 | [+0.000, +0.200] | 10 |",
+        "| Model B | +0.300 | [+0.200, +0.400] | 12 |",
+        "| Model C | +0.500 | [+0.400, +0.600] | 1 |",
         "| e1 | Model A | -0.100 | ✓ Beats baseline |",
         "| e1 | Model A | true | -0.200 | ✓ Beats baseline |",
-        "| Lowest pooled mean: model | Model A |",
-        "| Lowest pooled mean: score | +0.100 |",
         "| Environments beating baseline (model only) | 1/1 |",
         "| Pooled mean score | Mean standardised prediction error across each model's filtered runs; lower is better |",
         "| Model within environment | Mean over all runs for each model within an environment, pooling PyMC settings |",
         "| Model and PyMC setting | Mean over each `(model, use_ppl)` combination within an environment; `use_ppl=true` adds PyMC model refinement (Box's Loop) |",
-        "| Welch's t-test | Group comparison with unequal variances |",
         "| Bootstrap confidence interval | 95% confidence intervals from resampling |",
-        "| Benjamini-Hochberg | Adjusts comparison p-values to control the false discovery rate |",
         "| Snapshot version | `v1` |",
     ]
-    p_text = "0.012*" if significantly_worse_models else "0.420"
-    expected_rows.append(f"| 2 | Model B | +0.300 | [+0.200, +0.400] | {p_text} | 12 |")
-    sig_text = "Model B, Model C" if significantly_worse_models else "None"
-    expected_rows.append(f"| Models with higher mean error than rank 1 (adjusted p-value < 0.05) | {sig_text} |")
+    assert "Lowest pooled mean" not in results
+    assert "Welch" not in results
+    assert "Benjamini" not in results
     for row in expected_rows:
         assert row in results
     for row in [

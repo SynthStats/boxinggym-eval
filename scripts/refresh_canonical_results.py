@@ -268,21 +268,12 @@ def render_metadata_block(metadata: dict[str, Any]) -> str:
 
 def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any]) -> str:
     leaderboard_rows = []
-    for row in metrics.get("leaderboard", []):
-        p_val = row.get("p_adjusted_vs_best")
-        if row.get("rank") == 1:
-            p_text = "Reference"
-        elif p_val is None:
-            p_text = "n/a"
-        else:
-            p_text = f"{p_val:.3f}{'*' if row.get('significant_vs_best') else ''}"
+    for row in sorted(metrics.get("leaderboard", []), key=lambda r: r["model_display"]):
         leaderboard_rows.append(
             [
-                str(row["rank"]),
                 row["model_display"],
                 f"{row['mean_z']:+.3f}",
                 f"[{row['ci_low']:+.3f}, {row['ci_high']:+.3f}]",
-                p_text,
                 str(row["n"]),
             ]
         )
@@ -308,14 +299,12 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
     ]
 
     findings = metrics.get("key_findings", {})
-    sig_worse = findings.get("significantly_worse_models", [])
-    sig_line = ", ".join(sig_worse) if sig_worse else "None"
 
     parts = [
         "### Mean scores in this snapshot",
         "",
         _rows_to_markdown_table(
-            ["Rank", "Model", "Mean z", "95% bootstrap confidence interval", "Adjusted p-value vs rank 1", "Runs"],
+            ["Model", "Mean z", "95% bootstrap confidence interval", "Runs"],
             leaderboard_rows,
         ),
         "",
@@ -338,13 +327,10 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Finding", "Value"],
             [
-                ["Lowest pooled mean: model", findings.get("best_model", "n/a")],
-                ["Lowest pooled mean: score", f"{findings.get('best_model_mean_z', float('nan')):+.3f}"],
                 [
                     "Environments beating baseline (model only)",
                     f"{findings.get('n_env_beating_baseline_model_only', 0)}/{findings.get('n_env_total', 0)}",
                 ],
-                ["Models with higher mean error than rank 1 (adjusted p-value < 0.05)", sig_line],
             ],
         ),
         "",
@@ -370,9 +356,7 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Method", "Definition"],
             [
-                ["Welch's t-test", "Group comparison with unequal variances"],
                 ["Bootstrap confidence interval", "95% confidence intervals from resampling"],
-                ["Benjamini-Hochberg", "Adjusts comparison p-values to control the false discovery rate"],
             ],
         ),
         "",

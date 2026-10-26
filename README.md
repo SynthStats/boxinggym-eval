@@ -25,7 +25,6 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | [Dashboard](https://huggingface.co/spaces/youkad/boxing-gym-dashboard) | Model rankings, environment comparisons and PyMC examples |
 | [Data](scripts/streamlit_app/demo_data/canonical_runs.parquet), [metrics](scripts/streamlit_app/demo_data/canonical_metrics.json), [metadata](scripts/streamlit_app/demo_data/canonical_metadata.json) | 2026-10-24 snapshot; 1,948 runs, 7 models, 10 environments; budget ≥ 10; outliers excluded |
 | Snapshot scores | Mean standardised prediction error; lower is better; 95% bootstrap confidence intervals |
-| Snapshot comparisons | Welch's t-test; Benjamini-Hochberg adjustment for false discovery rate |
 | `box sync --local results/` | Cache local JSON runs as Parquet |
 | `box query --list` | List analyses: rankings, experiment settings and environment difficulty |
 | `box results --tui` | Terminal rankings, heatmaps, budget trends, parameter importance and seed stability |
@@ -51,15 +50,15 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 <!-- CANONICAL_RESULTS:START -->
 ### Mean scores in this snapshot
 
-| Rank | Model | Mean z | 95% bootstrap confidence interval | Adjusted p-value vs rank 1 | Runs |
-| --- | --- | --- | --- | --- | --- |
-| 1 | MiniMax-M2.1 | +0.185 | [+0.071, +0.315] | Reference | 311 |
-| 2 | GPT-4o | +0.256 | [+0.138, +0.388] | 0.424 | 226 |
-| 3 | Kimi-K2 | +0.262 | [+0.130, +0.408] | 0.424 | 302 |
-| 4 | Qwen3-32B | +0.275 | [+0.115, +0.464] | 0.424 | 188 |
-| 5 | DeepSeek-V3.2 | +0.296 | [+0.122, +0.532] | 0.424 | 369 |
-| 6 | GLM-4.7 | +0.546 | [+0.257, +0.904] | 0.120 | 314 |
-| 7 | GPT-5.1-Codex-Mini | +0.586 | [+0.310, +0.966] | 0.120 | 238 |
+| Model | Mean z | 95% bootstrap confidence interval | Runs |
+| --- | --- | --- | --- |
+| DeepSeek-V3.2 | +0.296 | [+0.122, +0.532] | 369 |
+| GLM-4.7 | +0.546 | [+0.257, +0.904] | 314 |
+| GPT-4o | +0.256 | [+0.138, +0.388] | 226 |
+| GPT-5.1-Codex-Mini | +0.586 | [+0.310, +0.966] | 238 |
+| Kimi-K2 | +0.262 | [+0.130, +0.408] | 302 |
+| MiniMax-M2.1 | +0.185 | [+0.071, +0.315] | 311 |
+| Qwen3-32B | +0.275 | [+0.115, +0.464] | 188 |
 
 ### Lowest mean score in each environment
 
@@ -95,10 +94,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 
 | Finding | Value |
 | --- | --- |
-| Lowest pooled mean: model | MiniMax-M2.1 |
-| Lowest pooled mean: score | +0.185 |
 | Environments beating baseline (model only) | 6/10 |
-| Models with higher mean error than rank 1 (adjusted p-value < 0.05) | None |
 
 ### Definitions
 
@@ -112,9 +108,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 
 | Method | Definition |
 | --- | --- |
-| Welch's t-test | Group comparison with unequal variances |
 | Bootstrap confidence interval | 95% confidence intervals from resampling |
-| Benjamini-Hochberg | Adjusts comparison p-values to control the false discovery rate |
 
 | Snapshot | Value |
 | --- | --- |
