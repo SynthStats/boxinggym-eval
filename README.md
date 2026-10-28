@@ -23,7 +23,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | [Paper](https://arxiv.org/abs/2501.01540) | BoxingGym: Benchmarking Progress in Automated Experimental Design and Model Discovery |
 | [Upstream](https://github.com/kanishkg/boxing-gym), [documentation](README_upstream.md) | Gandhi, Li, Sadigh and Goodman, Stanford University |
 | [Dashboard](https://huggingface.co/spaces/youkad/boxing-gym-dashboard) | Model rankings, environment comparisons and PyMC examples |
-| [Data](scripts/streamlit_app/demo_data/canonical_runs.parquet), [metrics](scripts/streamlit_app/demo_data/canonical_metrics.json), [metadata](scripts/streamlit_app/demo_data/canonical_metadata.json) | 2026-10-26 snapshot; 1,948 runs, 7 models, 10 environments; budget ≥ 10; outliers excluded |
+| [Data](scripts/streamlit_app/demo_data/canonical_runs.parquet), [metrics](scripts/streamlit_app/demo_data/canonical_metrics.json), [metadata](scripts/streamlit_app/demo_data/canonical_metadata.json) | Run-level results, model metrics and snapshot metadata; budget ≥ 10; outliers excluded |
 | Snapshot scores | Mean standardised prediction error; lower is better; 95% bootstrap confidence intervals |
 | `box sync --local results/` | Cache local JSON runs as Parquet |
 | `box query --list` | List analyses: rankings, experiment settings and environment difficulty |
@@ -41,10 +41,10 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 <!-- CANONICAL_METADATA:START -->
 | Snapshot | Value |
 | --- | --- |
-| Snapshot version | `2026-10-26` |
+| Snapshot version | `2026-10-28` |
 | Bundled snapshot | `scripts/streamlit_app/demo_data/canonical_runs.parquet` |
 | Filters | `budget >= 10`, `exclude_outliers=true` |
-| Coverage | 1,948 runs across 7 models and 10 environments |
+| Coverage | 1,946 runs across 7 models and 10 environments |
 <!-- CANONICAL_METADATA:END -->
 
 <!-- CANONICAL_RESULTS:START -->
@@ -53,7 +53,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 | Model | Matched mean z | 95% environment-cluster interval | Matched rows | Pooled mean z | Pooled rows |
 | --- | --- | --- | --- | --- | --- |
 | DeepSeek-V3.2 | +0.245 | [-0.194, +0.760] | 295 | +0.296 | 369 |
-| GPT-4o | +0.258 | [-0.126, +0.648] | 157 | +0.256 | 226 |
+| GPT-4o | +0.258 | [-0.126, +0.648] | 157 | +0.255 | 224 |
 | MiniMax-M2.1 | +0.262 | [-0.128, +0.694] | 273 | +0.185 | 311 |
 | GPT-5.1-Codex-Mini | +0.279 | [-0.158, +0.771] | 174 | +0.586 | 238 |
 | Kimi-K2 | +0.352 | [-0.105, +0.863] | 271 | +0.262 | 302 |
@@ -115,7 +115,7 @@ uv run python run_experiment.py seeds=null seed=1 exp=oed envs=hyperbolic_direct
 
 | Snapshot | Value |
 | --- | --- |
-| Snapshot version | `2026-10-26` |
+| Snapshot version | `2026-10-28` |
 <!-- CANONICAL_RESULTS:END -->
 
 [SynthStats](https://synthstats.org)

@@ -520,6 +520,13 @@ def refresh_canonical_artifacts(
         }:
             raise ValueError("Use the original source data to change snapshot filters")
         metadata.update(generated_at_utc=utc_now_iso(), snapshot_version=snapshot_version)
+        metadata.update(
+            {
+                "rows_after_filters": stats["rows_after_filters"],
+                "models_after_filters": stats["models_after_filters"],
+                "envs_after_filters": stats["envs_after_filters"],
+            }
+        )
     else:
         metadata = build_metadata(
             source_path=input_path,

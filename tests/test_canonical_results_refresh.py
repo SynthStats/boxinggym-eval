@@ -353,3 +353,71 @@ def test_refresh_bundled_snapshot_preserves_original_provenance(tmp_path: Path, 
     assert written["snapshot_version"] == "2026-10-26"
     for key in original.keys() - {"generated_at_utc", "snapshot_version"}:
         assert written[key] == original[key], key
+
+
+def test_refresh_bundled_snapshot_counts_the_rows_it_writes(tmp_path: Path):
+    """An in-place refresh must describe the snapshot it writes, not the one it replaces.
+
+    The fixture holds one row for each of the seven benchmark models in a single
+    environment. The previous metadata claims nine rows over six models in two
+    environments, as it would after a snapshot loses rows, so a count carried
+    over from that metadata reports a snapshot that no longer exists.
+    """
+    source = tmp_path / "canonical_runs.parquet"
+    pd.DataFrame(
+        [
+            {
+                "run_id": str(i), "model": model, "env": "e1", "budget": 10,
+                "use_ppl": False, "z_mean": 0.1, "experiment_type": "discovery",
+                "include_prior": True, "goal": "prediction",
+                **dict.fromkeys(PROTOCOL_FIELDS, "null"),
+            }
+            for i, model in enumerate(MATCHED_MODELS)
+        ]
+    ).to_parquet(source, index=False)
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "<!-- CANONICAL_METADATA:START -->\n<!-- CANONICAL_METADATA:END -->\n"
+        "<!-- CANONICAL_RESULTS:START -->\n<!-- CANONICAL_RESULTS:END -->\n"
+    )
+    hf_readme = tmp_path / "HF_SPACE_README.md"
+    hf_readme.write_text(
+        "<!-- CANONICAL_HF_SNAPSHOT:START -->\n<!-- CANONICAL_HF_SNAPSHOT:END -->\n"
+    )
+    original = {
+        "generated_at_utc": "2026-10-24T04:57:05Z",
+        "snapshot_version": "2026-10-24",
+        "source_path": ".boxing-gym-cache/runs.parquet",
+        "source_git_commit": "c43ed1ad383b5f8f14a7d4cbe7b6e1d2cf800977",
+        "snapshot_path": str(source),
+        "filters": {"min_budget": 10, "exclude_outliers": True},
+        "rows_total_before_filters": 5710,
+        "rows_after_filters": 9,
+        "models_after_filters": 6,
+        "envs_after_filters": 2,
+    }
+    metadata_path = tmp_path / "canonical_metadata.json"
+    metadata_path.write_text(json.dumps(original))
+
+    _, metadata = refresh_canonical_artifacts(
+        input_path=source,
+        output_dir=tmp_path,
+        readme_path=readme,
+        hf_readme_path=hf_readme,
+        min_budget=10,
+        exclude_outliers=True,
+        snapshot_version="2026-10-28",
+        n_bootstrap=10,
+        dry_run=False,
+    )
+
+    written = json.loads(metadata_path.read_text())
+    assert written == metadata
+    assert written["rows_after_filters"] == 7
+    assert written["models_after_filters"] == 7
+    assert written["envs_after_filters"] == 1
+    assert written["rows_total_before_filters"] == 5710
+    assert written["source_path"] == ".boxing-gym-cache/runs.parquet"
+    assert written["source_git_commit"] == "c43ed1ad383b5f8f14a7d4cbe7b6e1d2cf800977"
+    assert written["snapshot_version"] == "2026-10-28"
+    assert "| Coverage | 7 runs across 7 models and 1 environments |" in readme.read_text()

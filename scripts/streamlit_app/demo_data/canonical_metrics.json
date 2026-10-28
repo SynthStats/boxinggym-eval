@@ -153,13 +153,13 @@
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.387521766734535,
-      "ci_low": 0.1382570326966215,
-      "mean_z": 0.2558245498443181,
+      "ci_high": 0.38694893916505363,
+      "ci_low": 0.13585983296670734,
+      "mean_z": 0.2548049928915335,
       "model_display": "GPT-4o",
       "model_raw": "gpt-4o",
-      "n": 226,
-      "p_adjusted_vs_best": 0.4244464984466038,
+      "n": 224,
+      "p_adjusted_vs_best": 0.43328476396923826,
       "rank": 2,
       "significant_vs_best": false
     },
@@ -170,7 +170,7 @@
       "model_display": "Kimi-K2",
       "model_raw": "kimi-for-coding",
       "n": 302,
-      "p_adjusted_vs_best": 0.4244464984466038,
+      "p_adjusted_vs_best": 0.43328476396923826,
       "rank": 3,
       "significant_vs_best": false
     },
@@ -181,7 +181,7 @@
       "model_display": "Qwen3-32B",
       "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
       "n": 188,
-      "p_adjusted_vs_best": 0.4244464984466038,
+      "p_adjusted_vs_best": 0.43328476396923826,
       "rank": 4,
       "significant_vs_best": false
     },
@@ -192,7 +192,7 @@
       "model_display": "DeepSeek-V3.2",
       "model_raw": "deepseek/deepseek-chat",
       "n": 369,
-      "p_adjusted_vs_best": 0.4244464984466038,
+      "p_adjusted_vs_best": 0.43328476396923826,
       "rank": 5,
       "significant_vs_best": false
     },
