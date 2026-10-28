@@ -111,9 +111,9 @@ def main() -> int:
 
     view_configs = [
         (
-            "Model Rankings",
+            "Pooled Model Scores",
             "model_rankings.html",
-            "z_mean with 95% CI",
+            "Mean z_mean across each model's runs, with 95% CI",
             ModelRankingsView(df, console, metric_col),
         ),
         (

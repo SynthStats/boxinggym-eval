@@ -19,6 +19,7 @@ def _adapt_columns_for_tui(df):
         "z_std": "metric/eval/z_std",
         "experiment_type": "config/exp",
         "use_ppl": "config/use_ppl",
+        "include_prior": "config/include_prior",
     }
 
     df = df.copy()

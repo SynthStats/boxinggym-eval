@@ -244,7 +244,7 @@ class ParameterImportanceView(BaseView):
             xref="paper",
             yref="paper",
             x=0.5,
-            y=-0.12,
+            y=1.1,
             showarrow=False,
             font=dict(size=10, color="gray"),
         )

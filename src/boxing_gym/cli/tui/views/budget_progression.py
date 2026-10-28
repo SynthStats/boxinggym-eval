@@ -232,7 +232,7 @@ class BudgetProgressionView(BaseView):
 
         agg = df_local.groupby(["config/llms", "_budget_num"])[self.metric].mean().reset_index()
 
-        if agg.empty:
+        if agg.empty or agg["_budget_num"].nunique() < 2:
             return None
 
         fig = go.Figure()

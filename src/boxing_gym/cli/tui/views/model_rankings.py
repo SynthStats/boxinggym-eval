@@ -247,21 +247,23 @@ class ModelRankingsView(BaseView):
                     "color": "#374151",
                     "thickness": 1.5,
                 },
-                text=[f"n={c}" for c in counts],
-                textposition="outside",
                 hovertemplate="Model: %{y}<br>z_mean: %{x:.3f}<br>95% CI: [%{customdata[0]:.3f}, %{customdata[1]:.3f}]<extra></extra>",
                 customdata=list(zip(ci_lows, ci_highs)),
             )
         )
 
         fig.update_layout(
-            title="Model Rankings (z_mean with 95% CI, lower is better)",
+            title="Pooled Model Scores (z_mean with 95% CI, lower is better)",
             xaxis_title="z_mean",
             yaxis_title="Model",
-            yaxis={"categoryorder": "total ascending"},
+            yaxis={
+                "categoryorder": "total ascending",
+                "tickvals": models,
+                "ticktext": [f"{model} (n={count})" for model, count in zip(models, counts)],
+            },
             height=max(400, len(models) * 40 + 100),
-            width=800,
-            margin={"l": 200, "r": 100, "t": 80, "b": 50},
+            width=900,
+            margin={"l": 300, "r": 100, "t": 80, "b": 50},
             showlegend=False,
         )
 
