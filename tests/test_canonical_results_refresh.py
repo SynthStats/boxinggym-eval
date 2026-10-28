@@ -139,12 +139,17 @@ def test_rendered_readme_blocks_put_facts_in_tables(tmp_path: Path, significantl
     snapshot = render_metadata_block(metadata)
 
     assert "### Matched and pooled scores in this snapshot" in results
-    assert "| Model | Matched mean z | 95% environment-cluster interval | Matched rows | Pooled mean z | Pooled rows |" in results
+    assert (
+        "| Model | Matched mean z | 95% environment-cluster interval | Matched rows | Pooled mean z | Pooled rows |"
+        in results
+    )
     assert "Rank" not in results
     assert "rank 1" not in results
     assert "Reference" not in results
     assert "Adjusted p-value" not in results
-    assert results.index("| Model A |") < results.index("| Model B |") < results.index("| Model C |")
+    assert (
+        results.index("| Model A |") < results.index("| Model B |") < results.index("| Model C |")
+    )
     assert "### Lowest mean score in each environment" in results
     assert "### Lowest mean score by model and PyMC setting" in results
     assert "### Statistical methods" in results
@@ -230,7 +235,11 @@ def test_committed_readmes_reproduce_from_bundled_metrics():
     for name, marker, rendered in [
         ("README.md", "CANONICAL_METADATA", render_metadata_block(metadata)),
         ("README.md", "CANONICAL_RESULTS", render_readme_results_block(metrics, metadata)),
-        ("HF_SPACE_README.md", "CANONICAL_HF_SNAPSHOT", render_hf_snapshot_block(metrics, metadata)),
+        (
+            "HF_SPACE_README.md",
+            "CANONICAL_HF_SNAPSHOT",
+            render_hf_snapshot_block(metrics, metadata),
+        ),
     ]:
         text = (root / name).read_text()
         start = f"<!-- {marker}:START -->\n"
@@ -263,11 +272,18 @@ def test_refresh_links_to_the_written_snapshot(tmp_path: Path):
     pd.DataFrame(
         [
             {
-                "model": model, "env": "e1", "budget": 10, "use_ppl": False,
-                "z_mean": z, "experiment_type": "discovery", "include_prior": True,
-                "goal": "prediction", **dict.fromkeys(PROTOCOL_FIELDS, "null"),
+                "model": model,
+                "env": "e1",
+                "budget": 10,
+                "use_ppl": False,
+                "z_mean": z,
+                "experiment_type": "discovery",
+                "include_prior": True,
+                "goal": "prediction",
+                **dict.fromkeys(PROTOCOL_FIELDS, "null"),
             }
-            for model in MATCHED_MODELS for z in (-0.2, -0.1, 0.0)
+            for model in MATCHED_MODELS
+            for z in (-0.2, -0.1, 0.0)
         ]
     ).to_parquet(source, index=False)
     readme = tmp_path / "README.md"
@@ -276,7 +292,9 @@ def test_refresh_links_to_the_written_snapshot(tmp_path: Path):
         "<!-- CANONICAL_RESULTS:START -->\n<!-- CANONICAL_RESULTS:END -->\n"
     )
     hf_readme = tmp_path / "HF_SPACE_README.md"
-    hf_readme.write_text("<!-- CANONICAL_HF_SNAPSHOT:START -->\n<!-- CANONICAL_HF_SNAPSHOT:END -->\n")
+    hf_readme.write_text(
+        "<!-- CANONICAL_HF_SNAPSHOT:START -->\n<!-- CANONICAL_HF_SNAPSHOT:END -->\n"
+    )
     output = tmp_path / "snapshot"
 
     _, metadata = refresh_canonical_artifacts(
@@ -305,9 +323,15 @@ def test_refresh_bundled_snapshot_preserves_original_provenance(tmp_path: Path, 
     frame = pd.DataFrame(
         [
             {
-                "run_id": str(i), "model": model, "env": "e1", "budget": 10,
-                "use_ppl": False, "z_mean": 0.1, "experiment_type": "discovery",
-                "include_prior": True, "goal": "prediction",
+                "run_id": str(i),
+                "model": model,
+                "env": "e1",
+                "budget": 10,
+                "use_ppl": False,
+                "z_mean": 0.1,
+                "experiment_type": "discovery",
+                "include_prior": True,
+                "goal": "prediction",
                 **dict.fromkeys(PROTOCOL_FIELDS, "null"),
             }
             for i, model in enumerate(MATCHED_MODELS)
@@ -367,9 +391,15 @@ def test_refresh_bundled_snapshot_counts_the_rows_it_writes(tmp_path: Path):
     pd.DataFrame(
         [
             {
-                "run_id": str(i), "model": model, "env": "e1", "budget": 10,
-                "use_ppl": False, "z_mean": 0.1, "experiment_type": "discovery",
-                "include_prior": True, "goal": "prediction",
+                "run_id": str(i),
+                "model": model,
+                "env": "e1",
+                "budget": 10,
+                "use_ppl": False,
+                "z_mean": 0.1,
+                "experiment_type": "discovery",
+                "include_prior": True,
+                "goal": "prediction",
                 **dict.fromkeys(PROTOCOL_FIELDS, "null"),
             }
             for i, model in enumerate(MATCHED_MODELS)

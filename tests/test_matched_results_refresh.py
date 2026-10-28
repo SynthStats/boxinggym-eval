@@ -18,16 +18,29 @@ def runs(cells):
     return pd.DataFrame(
         [
             {
-                "model": model, "env": env, "experiment_type": mode,
-                "budget": 10, "use_ppl": False, "include_prior": True,
-                "goal": "prediction", "z_mean": score, "num_evals": "10",
-                "env_params": "{}", "com_limit": "200", "effective_check_eig": "false",
-                "requested_budgets": "[10]", "goal_original": '"direct"',
-                "norm_factors": '{"mu":0,"sigma":1}', "temperature": "0.0",
-                "configured_seeds": "[1]", "aggregation_mode": "null",
-                "aggregation_n_seeds": "null", "observed_seed_ids": "[]",
+                "model": model,
+                "env": env,
+                "experiment_type": mode,
+                "budget": 10,
+                "use_ppl": False,
+                "include_prior": True,
+                "goal": "prediction",
+                "z_mean": score,
+                "num_evals": "10",
+                "env_params": "{}",
+                "com_limit": "200",
+                "effective_check_eig": "false",
+                "requested_budgets": "[10]",
+                "goal_original": '"direct"',
+                "norm_factors": '{"mu":0,"sigma":1}',
+                "temperature": "0.0",
+                "configured_seeds": "[1]",
+                "aggregation_mode": "null",
+                "aggregation_n_seeds": "null",
+                "observed_seed_ids": "[]",
             }
-            for env, mode, score in cells for model in MODELS
+            for env, mode, score in cells
+            for model in MODELS
         ]
     )
 

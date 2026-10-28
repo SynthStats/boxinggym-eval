@@ -142,7 +142,10 @@ def main():
         "--quarantine", action="store_true", help="Auto-quarantine L0/L1/L1.5/L2 failures"
     )
     parser.add_argument(
-        "--output-dir", type=str, default="validation_reports", help="Directory for validation reports"
+        "--output-dir",
+        type=str,
+        default="validation_reports",
+        help="Directory for validation reports",
     )
     args = parser.parse_args()
 

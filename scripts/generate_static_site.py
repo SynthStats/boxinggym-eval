@@ -19,9 +19,11 @@ from pathlib import Path
 import pandas as pd
 from rich.console import Console
 
+from boxing_gym.cli.commands.results import _adapt_columns_for_tui
+
 
 def load_results(results_dir: Path) -> pd.DataFrame:
-    """Load results from results directory or parquet cache."""
+    """Load local results, the parquet cache, or the retained snapshot."""
     # Prefer explicit results_dir if it exists and has content
     if results_dir.exists() and any(results_dir.rglob("*.json")):
         from boxing_gym.cli.tui.loaders.local_results import load_local_results
@@ -31,8 +33,12 @@ def load_results(results_dir: Path) -> pd.DataFrame:
     # Fall back to parquet cache (from 'box sync')
     cache_dir = Path.home() / ".boxing-gym-cache"
     parquet_path = cache_dir / "runs.parquet"
+    if not parquet_path.exists():
+        parquet_path = (
+            Path(__file__).resolve().parent / "streamlit_app/demo_data/canonical_runs.parquet"
+        )
     if parquet_path.exists():
-        return pd.read_parquet(parquet_path)
+        return _adapt_columns_for_tui(pd.read_parquet(parquet_path))
 
     return pd.DataFrame()
 

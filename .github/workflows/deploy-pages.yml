@@ -6,6 +6,8 @@ on:
     paths:
       - 'results/**'
       - 'scripts/generate_static_site.py'
+      - 'scripts/streamlit_app/demo_data/canonical_runs.parquet'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -22,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: astral-sh/setup-uv@v4
         with:
           version: "0.5.x"

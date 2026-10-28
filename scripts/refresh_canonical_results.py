@@ -40,9 +40,18 @@ MATCHED_MODELS = (
 )
 TASK_FIELDS = ["env", "experiment_type", "budget", "use_ppl", "include_prior", "goal"]
 PROTOCOL_FIELDS = [
-    "num_evals", "env_params", "com_limit", "effective_check_eig", "requested_budgets",
-    "goal_original", "norm_factors", "temperature", "configured_seeds",
-    "aggregation_mode", "aggregation_n_seeds", "observed_seed_ids",
+    "num_evals",
+    "env_params",
+    "com_limit",
+    "effective_check_eig",
+    "requested_budgets",
+    "goal_original",
+    "norm_factors",
+    "temperature",
+    "configured_seeds",
+    "aggregation_mode",
+    "aggregation_n_seeds",
+    "observed_seed_ids",
 ]
 MATCHED_FIELDS = TASK_FIELDS + PROTOCOL_FIELDS
 
@@ -235,7 +244,9 @@ def compute_matched_comparison(df: pd.DataFrame) -> dict[str, Any]:
         raise ValueError(f"Matched comparison missing fields: {', '.join(missing)}")
     selected = df.loc[df.model.isin(MATCHED_MODELS) & np.isfinite(df.z_mean)]
     if selected[MATCHED_FIELDS].isna().any().any():
-        raise ValueError("Matched protocol values must be recorded; use JSON null for absent settings")
+        raise ValueError(
+            "Matched protocol values must be recorded; use JSON null for absent settings"
+        )
     means = selected.groupby(MATCHED_FIELDS + ["model"]).z_mean.mean().unstack("model")
     means = means.reindex(columns=MATCHED_MODELS).dropna()
     if means.empty:
@@ -245,7 +256,9 @@ def compute_matched_comparison(df: pd.DataFrame) -> dict[str, Any]:
     environments = means.groupby(level="env").mean()
     matrix = environments.to_numpy()
     point = matrix.mean(axis=0)
-    draws = np.random.default_rng(20261026).integers(0, len(environments), size=(200_000, len(environments)))
+    draws = np.random.default_rng(20261026).integers(
+        0, len(environments), size=(200_000, len(environments))
+    )
     bounds = np.quantile(matrix[draws].mean(axis=1), [0.025, 0.975], axis=0)
     models = [
         {
@@ -263,7 +276,9 @@ def compute_matched_comparison(df: pd.DataFrame) -> dict[str, Any]:
         "n_cells": len(means),
         "n_environments": len(environments),
         "n_rows": int(counts.to_numpy().sum()),
-        "budgets": sorted(int(budget) for budget in means.index.get_level_values("budget").unique()),
+        "budgets": sorted(
+            int(budget) for budget in means.index.get_level_values("budget").unique()
+        ),
         "bootstrap_draws": 200_000,
         "bootstrap_seed": 20261026,
         "models": sorted(models, key=lambda row: row["mean_z"]),
@@ -371,7 +386,14 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         "### Matched and pooled scores in this snapshot",
         "",
         _rows_to_markdown_table(
-            ["Model", "Matched mean z", "95% environment-cluster interval", "Matched rows", "Pooled mean z", "Pooled rows"],
+            [
+                "Model",
+                "Matched mean z",
+                "95% environment-cluster interval",
+                "Matched rows",
+                "Pooled mean z",
+                "Pooled rows",
+            ],
             leaderboard_rows,
         ),
         "",
@@ -406,10 +428,22 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Result", "Definition"],
             [
-                ["Matched comparison", f"{matched['n_cells']} shared cells across {matched['n_environments']} environments; {budget_label} {budgets}"],
-                ["Pooled mean score", "Mean standardised prediction error across each model's filtered runs; lower is better"],
-                ["Matched cell", "Same environment, mode, budget, PyMC setting, prior, goal, evaluation size, simulator parameters, communication limit, information-gain setting, budget schedule, original goal, normalisation, temperature, configured and observed seed lists, aggregation mode and seed count; finite scores from all seven models"],
-                ["Matched mean score", "Mean over records within each cell, cells within each environment, then environments with equal weight"],
+                [
+                    "Matched comparison",
+                    f"{matched['n_cells']} shared cells across {matched['n_environments']} environments; {budget_label} {budgets}",
+                ],
+                [
+                    "Pooled mean score",
+                    "Mean standardised prediction error across each model's filtered runs; lower is better",
+                ],
+                [
+                    "Matched cell",
+                    "Same environment, mode, budget, PyMC setting, prior, goal, evaluation size, simulator parameters, communication limit, information-gain setting, budget schedule, original goal, normalisation, temperature, configured and observed seed lists, aggregation mode and seed count; finite scores from all seven models",
+                ],
+                [
+                    "Matched mean score",
+                    "Mean over records within each cell, cells within each environment, then environments with equal weight",
+                ],
                 [
                     "Model within environment",
                     "Mean over all runs for each model within an environment, pooling PyMC settings",
@@ -426,7 +460,10 @@ def render_readme_results_block(metrics: dict[str, Any], metadata: dict[str, Any
         _rows_to_markdown_table(
             ["Method", "Definition"],
             [
-                ["Environment-cluster bootstrap", "95% percentile intervals from 200,000 resamples of exchangeable environments; seed 20261026"],
+                [
+                    "Environment-cluster bootstrap",
+                    "95% percentile intervals from 200,000 resamples of exchangeable environments; seed 20261026",
+                ],
             ],
         ),
         "",
@@ -569,7 +606,9 @@ def parse_args() -> argparse.Namespace:
         description="Refresh canonical snapshot and generated result docs."
     )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Input parquet file.")
-    parser.add_argument("--protocol-input", type=Path, help="CSV with run_id and recorded matching protocol fields.")
+    parser.add_argument(
+        "--protocol-input", type=Path, help="CSV with run_id and recorded matching protocol fields."
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
