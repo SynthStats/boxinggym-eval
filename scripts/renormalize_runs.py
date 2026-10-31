@@ -24,15 +24,13 @@ from boxing_gym.data_quality.config import BASELINE_VERSION
 
 
 def load_current_baselines() -> dict:
-    """Load current norm factors from environment Goal classes."""
+    """Load current norm factors from environment Goal classes, keyed by (env, goal)."""
     from boxing_gym.envs.registry import get_environment_registry
 
     nametoenv, nameenvtogoal = get_environment_registry()
 
     baselines = {}
     for (env_name, goal_key), goal_cls in nameenvtogoal.items():
-        if goal_key != "direct":
-            continue
         try:
             env_cls = nametoenv[env_name]
             env = env_cls()
@@ -40,9 +38,15 @@ def load_current_baselines() -> dict:
             mu = getattr(goal, "norm_mu", None)
             sigma = getattr(goal, "norm_sigma", None)
             if mu is not None and sigma is not None:
-                baselines[env_name] = {"mu": mu, "sigma": sigma, "version": BASELINE_VERSION}
+                baselines[(env_name, goal_key)] = {
+                    "mu": mu,
+                    "sigma": sigma,
+                    "version": BASELINE_VERSION,
+                }
         except Exception as e:
-            print(f"warning: could not load baseline for {env_name}: {e}", file=sys.stderr)
+            print(
+                f"warning: could not load baseline for {env_name}/{goal_key}: {e}", file=sys.stderr
+            )
 
     return baselines
 
@@ -61,20 +65,31 @@ def renormalize_file(path: Path, baselines: dict, dry_run: bool = True) -> dict 
     config = data.get("config", {})
     envs_cfg = config.get("envs", {})
     env_name = envs_cfg.get("env_name") if isinstance(envs_cfg, dict) else None
+    goal_name = envs_cfg.get("goal_name") if isinstance(envs_cfg, dict) else None
 
-    if not env_name or env_name not in baselines:
+    # "direct_discovery" is a legacy alias for the direct goal (results_io._KNOWN_GOALS)
+    goal_key = goal_name or "direct"
+    if goal_key == "direct_discovery":
+        goal_key = "direct"
+
+    if not env_name or (env_name, goal_key) not in baselines:
         return None
 
-    baseline = baselines[env_name]
+    baseline = baselines[(env_name, goal_key)]
     data_section = data.get("data", {})
     z_results = data_section.get("z_results", [])
 
     if not z_results:
         return None
 
-    # check if already at current version
+    # skip only when the stored constants already match this goal's baseline
     existing_nf = data_section.get("norm_factors", {})
-    if isinstance(existing_nf, dict) and existing_nf.get("version") == baseline["version"]:
+    if (
+        isinstance(existing_nf, dict)
+        and existing_nf.get("mu") == baseline["mu"]
+        and existing_nf.get("sigma") == baseline["sigma"]
+        and existing_nf.get("version") == baseline["version"]
+    ):
         return None
 
     mu = baseline["mu"]
@@ -115,26 +130,22 @@ def renormalize_file(path: Path, baselines: dict, dry_run: bool = True) -> dict 
                     zr["z_std"] = float(raw_std) / sigma
 
     if not changes:
-        # no z-score changes, but still stamp version if missing
+        # no z-score changes, but still stamp this goal's baseline if missing
         if not dry_run:
-            needs_stamp = (
-                not isinstance(existing_nf, dict)
-                or existing_nf.get("version") != baseline["version"]
-            )
-            if needs_stamp:
-                data_section["norm_factors"] = {
-                    "mu": mu,
-                    "sigma": sigma,
-                    "version": baseline["version"],
-                }
-                with open(path, "w") as f:
-                    json.dump(data, f, indent=2)
-                return {
-                    "path": str(path),
-                    "env": env_name,
-                    "n_budgets_changed": 0,
-                    "changes": [],
-                }
+            data_section["norm_factors"] = {
+                "mu": mu,
+                "sigma": sigma,
+                "version": baseline["version"],
+            }
+            with open(path, "w") as f:
+                json.dump(data, f, indent=2)
+            return {
+                "path": str(path),
+                "env": env_name,
+                "goal": goal_key,
+                "n_budgets_changed": 0,
+                "changes": [],
+            }
         return None
 
     if not dry_run:
@@ -150,6 +161,7 @@ def renormalize_file(path: Path, baselines: dict, dry_run: bool = True) -> dict 
     return {
         "path": str(path),
         "env": env_name,
+        "goal": goal_key,
         "n_budgets_changed": len(changes),
         "changes": changes,
     }
@@ -181,9 +193,9 @@ def main():
 
     print("loading baselines from environment classes...")
     baselines = load_current_baselines()
-    print(f"loaded baselines for {len(baselines)} environments:")
-    for env, bl in sorted(baselines.items()):
-        print(f"  {env}: mu={bl['mu']:.6f}, sigma={bl['sigma']:.6f} ({bl['version']})")
+    print(f"loaded baselines for {len(baselines)} (env, goal) pairs:")
+    for (env, goal), bl in sorted(baselines.items()):
+        print(f"  {env}/{goal}: mu={bl['mu']:.6f}, sigma={bl['sigma']:.6f} ({bl['version']})")
     print()
 
     results_dir = Path(args.results_dir)
@@ -216,7 +228,10 @@ def main():
         total_budget_changes += result["n_budgets_changed"]
 
         print(f"{'WOULD MODIFY' if dry_run else 'MODIFIED'}: {result['path']}")
-        print(f"  env={result['env']}, {result['n_budgets_changed']} budget(s) changed")
+        print(
+            f"  env={result['env']}, goal={result['goal']}, "
+            f"{result['n_budgets_changed']} budget(s) changed"
+        )
         for c in result["changes"][:3]:  # show first 3
             print(
                 f"    budget={c['budget']}: z {c['old_z']:.4f} -> {c['new_z']:.4f} (raw={c['raw_mean']:.4f})"

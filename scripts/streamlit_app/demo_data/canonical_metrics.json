@@ -2,9 +2,9 @@
   "champions_model_only": [
     {
       "env": "death_process",
-      "model_display": "GPT-4o",
-      "model_raw": "gpt-4o",
-      "z_mean": -0.90345119470449
+      "model_display": "GPT-5.1-Codex-Mini",
+      "model_raw": "gpt-5.1-codex-mini",
+      "z_mean": -0.6101850444267339
     },
     {
       "env": "lotka_volterra",
@@ -13,16 +13,16 @@
       "z_mean": -0.30105810171355957
     },
     {
-      "env": "hyperbolic_temporal_discount",
-      "model_display": "DeepSeek-V3.2",
-      "model_raw": "deepseek/deepseek-chat",
-      "z_mean": -0.15168568445453853
-    },
-    {
       "env": "moral_machines",
       "model_display": "GPT-5.1-Codex-Mini",
       "model_raw": "gpt-5.1-codex-mini",
       "z_mean": -0.1402968467849381
+    },
+    {
+      "env": "hyperbolic_temporal_discount",
+      "model_display": "DeepSeek-V3.2",
+      "model_raw": "deepseek/deepseek-chat",
+      "z_mean": -0.11921582268713438
     },
     {
       "env": "irt",
@@ -46,7 +46,7 @@
       "env": "survival",
       "model_display": "GLM-4.7",
       "model_raw": "anthropic/glm-4.7",
-      "z_mean": 0.4341069745187253
+      "z_mean": 0.36712722841951634
     },
     {
       "env": "emotion",
@@ -64,10 +64,10 @@
   "champions_model_plus_ppl": [
     {
       "env": "death_process",
-      "model_display": "Qwen3-32B",
-      "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
-      "use_ppl": true,
-      "z_mean": -1.1702637193171592
+      "model_display": "GPT-5.1-Codex-Mini",
+      "model_raw": "gpt-5.1-codex-mini",
+      "use_ppl": false,
+      "z_mean": -0.6402846121598178
     },
     {
       "env": "lotka_volterra",
@@ -77,18 +77,18 @@
       "z_mean": -0.30105810171355957
     },
     {
-      "env": "hyperbolic_temporal_discount",
-      "model_display": "DeepSeek-V3.2",
-      "model_raw": "deepseek/deepseek-chat",
-      "use_ppl": false,
-      "z_mean": -0.15920850212540982
-    },
-    {
       "env": "moral_machines",
       "model_display": "GPT-5.1-Codex-Mini",
       "model_raw": "gpt-5.1-codex-mini",
       "use_ppl": false,
       "z_mean": -0.1402968467849381
+    },
+    {
+      "env": "hyperbolic_temporal_discount",
+      "model_display": "DeepSeek-V3.2",
+      "model_raw": "deepseek/deepseek-chat",
+      "use_ppl": false,
+      "z_mean": -0.1259466925100202
     },
     {
       "env": "irt",
@@ -123,7 +123,7 @@
       "model_display": "GLM-4.7",
       "model_raw": "anthropic/glm-4.7",
       "use_ppl": false,
-      "z_mean": 0.4287802180893787
+      "z_mean": 0.36189128030799483
     },
     {
       "env": "emotion",
@@ -135,16 +135,16 @@
   ],
   "key_findings": {
     "best_model": "MiniMax-M2.1",
-    "best_model_mean_z": 0.1851795694197013,
+    "best_model_mean_z": 0.2249669882007463,
     "n_env_beating_baseline_model_only": 6,
     "n_env_total": 10,
     "significantly_worse_models": []
   },
   "leaderboard": [
     {
-      "ci_high": 0.3153874686539634,
-      "ci_low": 0.07084920486392801,
-      "mean_z": 0.1851795694197013,
+      "ci_high": 0.3521412443071842,
+      "ci_low": 0.11536082242933067,
+      "mean_z": 0.2249669882007463,
       "model_display": "MiniMax-M2.1",
       "model_raw": "openai/MiniMax-M2.1",
       "n": 311,
@@ -153,68 +153,68 @@
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.38694893916505363,
-      "ci_low": 0.13585983296670734,
-      "mean_z": 0.2548049928915335,
+      "ci_high": 0.4234443745205786,
+      "ci_low": 0.1801454159936975,
+      "mean_z": 0.2948309038796397,
       "model_display": "GPT-4o",
       "model_raw": "gpt-4o",
       "n": 224,
-      "p_adjusted_vs_best": 0.43328476396923826,
+      "p_adjusted_vs_best": 0.41600741098090177,
       "rank": 2,
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.40849400365633237,
-      "ci_low": 0.13012583076928214,
-      "mean_z": 0.2622390303710499,
+      "ci_high": 0.45257269197559324,
+      "ci_low": 0.18396109632092936,
+      "mean_z": 0.3122658093336222,
       "model_display": "Kimi-K2",
       "model_raw": "kimi-for-coding",
       "n": 302,
-      "p_adjusted_vs_best": 0.43328476396923826,
+      "p_adjusted_vs_best": 0.41600741098090177,
       "rank": 3,
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.46361236946092793,
-      "ci_low": 0.11487527894698822,
-      "mean_z": 0.275417635457746,
-      "model_display": "Qwen3-32B",
-      "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
-      "n": 188,
-      "p_adjusted_vs_best": 0.43328476396923826,
+      "ci_high": 0.5634707935741798,
+      "ci_low": 0.1572398684433443,
+      "mean_z": 0.32968114753992844,
+      "model_display": "DeepSeek-V3.2",
+      "model_raw": "deepseek/deepseek-chat",
+      "n": 369,
+      "p_adjusted_vs_best": 0.41600741098090177,
       "rank": 4,
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.5319055576707635,
-      "ci_low": 0.122471986633327,
-      "mean_z": 0.2959783131427685,
-      "model_display": "DeepSeek-V3.2",
-      "model_raw": "deepseek/deepseek-chat",
-      "n": 369,
-      "p_adjusted_vs_best": 0.43328476396923826,
+      "ci_high": 0.5243020937138992,
+      "ci_low": 0.19075760648285164,
+      "mean_z": 0.34411936579606706,
+      "model_display": "Qwen3-32B",
+      "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
+      "n": 188,
+      "p_adjusted_vs_best": 0.41600741098090177,
       "rank": 5,
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.9035461348392207,
-      "ci_low": 0.2570027511839145,
-      "mean_z": 0.5455543628804167,
+      "ci_high": 0.9283172800467313,
+      "ci_low": 0.2834195308923367,
+      "mean_z": 0.5703126012482636,
       "model_display": "GLM-4.7",
       "model_raw": "anthropic/glm-4.7",
       "n": 314,
-      "p_adjusted_vs_best": 0.11978744443759867,
+      "p_adjusted_vs_best": 0.14184142428658464,
       "rank": 6,
       "significant_vs_best": false
     },
     {
-      "ci_high": 0.9660133109050274,
-      "ci_low": 0.31035030436293204,
-      "mean_z": 0.5858194832188577,
+      "ci_high": 0.9882295034030416,
+      "ci_low": 0.33575314579598164,
+      "mean_z": 0.6087965074150341,
       "model_display": "GPT-5.1-Codex-Mini",
       "model_raw": "gpt-5.1-codex-mini",
       "n": 238,
-      "p_adjusted_vs_best": 0.11978744443759867,
+      "p_adjusted_vs_best": 0.14184142428658464,
       "rank": 7,
       "significant_vs_best": false
     }
@@ -247,57 +247,57 @@
     ],
     "models": [
       {
-        "ci_high": 0.7595545505039333,
-        "ci_low": -0.1939735893323693,
-        "mean_z": 0.24506335559927783,
+        "ci_high": 0.7657174614205182,
+        "ci_low": -0.132090987849879,
+        "mean_z": 0.27181333896496784,
         "model_display": "DeepSeek-V3.2",
         "model_raw": "deepseek/deepseek-chat",
         "n": 295
       },
       {
-        "ci_high": 0.6482521147666814,
-        "ci_low": -0.1262803324021819,
-        "mean_z": 0.2584182018431781,
-        "model_display": "GPT-4o",
-        "model_raw": "gpt-4o",
-        "n": 157
-      },
-      {
-        "ci_high": 0.6938031051454763,
-        "ci_low": -0.12808756453606857,
-        "mean_z": 0.26150908353981595,
+        "ci_high": 0.7039908165835207,
+        "ci_low": -0.04903975051496609,
+        "mean_z": 0.2939570668021711,
         "model_display": "MiniMax-M2.1",
         "model_raw": "openai/MiniMax-M2.1",
         "n": 273
       },
       {
-        "ci_high": 0.7714879451240695,
-        "ci_low": -0.15789039126029913,
-        "mean_z": 0.27925937679641766,
+        "ci_high": 0.7780189944247141,
+        "ci_low": -0.08779680852158565,
+        "mean_z": 0.3060804752033028,
         "model_display": "GPT-5.1-Codex-Mini",
         "model_raw": "gpt-5.1-codex-mini",
         "n": 174
       },
       {
-        "ci_high": 0.8628698899029607,
-        "ci_low": -0.10524326156536748,
-        "mean_z": 0.35162719886516985,
+        "ci_high": 0.655897952434445,
+        "ci_low": 0.0030408202552104574,
+        "mean_z": 0.30735340760425,
+        "model_display": "GPT-4o",
+        "model_raw": "gpt-4o",
+        "n": 157
+      },
+      {
+        "ci_high": 0.8701672370022463,
+        "ci_low": -0.03538389799809405,
+        "mean_z": 0.3824781418323976,
         "model_display": "Kimi-K2",
         "model_raw": "kimi-for-coding",
         "n": 271
       },
       {
-        "ci_high": 1.0609589393159136,
-        "ci_low": -0.1265959611134893,
-        "mean_z": 0.40504055473015865,
+        "ci_high": 1.0701172170045505,
+        "ci_low": -0.06080764991046874,
+        "mean_z": 0.43260748871430516,
         "model_display": "GLM-4.7",
         "model_raw": "anthropic/glm-4.7",
         "n": 260
       },
       {
-        "ci_high": 0.9931293907140877,
-        "ci_low": 0.03967007312324179,
-        "mean_z": 0.5062621031704847,
+        "ci_high": 0.9962650909751043,
+        "ci_low": 0.11783268348854874,
+        "mean_z": 0.5370110835762808,
         "model_display": "Qwen3-32B",
         "model_raw": "bedrock/qwen.qwen3-32b-v1:0",
         "n": 165

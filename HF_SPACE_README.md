@@ -19,11 +19,11 @@ BoxingGym agents choose experiments, such as offering a simulated person money n
 
 | Snapshot | Value |
 | --- | --- |
-| Generated | 2026-10-28T10:05:36Z |
+| Generated | 2026-10-31T16:37:23Z |
 | Bundled snapshot | `scripts/streamlit_app/demo_data/canonical_runs.parquet` |
 | Filters | `budget >= 10`, `exclude_outliers=true` |
 | Coverage | 1,946 runs across 7 models and 10 environments |
-| Lowest pooled mean | MiniMax-M2.1 (`z=+0.185`) |
+| Lowest pooled mean | MiniMax-M2.1 (`z=+0.225`) |
 | Leaderboard | Bundled snapshot |
 | Sweep analysis | Selected Weights & Biases sweeps |
 <!-- CANONICAL_HF_SNAPSHOT:END -->
