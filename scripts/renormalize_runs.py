@@ -41,7 +41,9 @@ def load_current_baselines() -> dict:
                 baselines[(env_name, goal_key)] = {
                     "mu": mu,
                     "sigma": sigma,
-                    "version": BASELINE_VERSION,
+                    # A goal whose constants were recomputed carries its own
+                    # version; every other goal keeps the shared baseline.
+                    "version": getattr(goal, "norm_version", None) or BASELINE_VERSION,
                 }
         except Exception as e:
             print(

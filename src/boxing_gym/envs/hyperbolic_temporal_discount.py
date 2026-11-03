@@ -250,8 +250,12 @@ class DiscountGoal(Goal):
         self.eval_points = []
         self.eval_pointer = 0
         self.update_param_cache = {}
-        self.norm_mu = 0.25
-        self.norm_sigma = 4.3
+        # Recomputed v3_2026-11-02: median of 5 seeds [42,123,456,789,101112]
+        # Previous: (0.25, 4.3) — v2 measured the error against a log-parameter
+        # draw, but this goal is scored on squared error in k.
+        self.norm_mu = 7.4275063283e-05
+        self.norm_sigma = 2.03379366642e-04
+        self.norm_version = "v3_2026-11-02"
 
     def get_system_message(self, include_prior):
         if include_prior:
@@ -391,16 +395,13 @@ The parameter k affects how the system values the three input parameters."""
 
     def get_norm_factors(self):
         N = 100000
-        errs = []
+        measurements = []
         for _ in range(N):
             self.env.reset()
-            k_truth = self.env.truth[0]
-            k_pred = np.random.normal(self.env.k_mean, self.env.k_std)
-            err = (k_truth - k_pred) ** 2
-            errs.append(err)
-        stderr = np.std(errs)
-        meanerr = self.env.k_std**2
-        return meanerr, stderr
+            measurements.append(self.env.truth[0])
+        predictions = [float(np.mean(measurements))] * N
+        mean_error, std_error = self.evaluate_predictions(predictions, measurements)
+        return mean_error, std_error
 
 
 class TemporalDiscount:
