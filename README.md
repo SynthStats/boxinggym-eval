@@ -1,9 +1,14 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/mark.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/mark-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/mark.svg">
     <img src="assets/mark.svg" alt="SynthStats: boxinggym-eval" width="140">
   </picture>
 </p>
+
+# boxinggym-eval
+
+This fork runs BoxingGym experiments on multiple language models and compares their prediction errors.
 
 <p align="center">
   <a href="https://synthstats.org"><img src="https://img.shields.io/badge/website-synthstats.org-5C56A5?labelColor=5A6078" alt="Website: synthstats.org"></a>
@@ -11,9 +16,9 @@
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-%E2%89%A53.11-5C56A5?labelColor=5A6078" alt="Python: ≥3.11"></a>
 </p>
 
-# boxinggym-eval
-
-This fork runs BoxingGym experiments on multiple language models and compares their prediction errors.
+<p align="center">
+  <img src="assets/demo.gif" alt="Terminal demo: list BoxingGym analyses and show the model leaderboard" width="800">
+</p>
 
 ## Install
 
